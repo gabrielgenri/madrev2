@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MADRE — Ecosistema Editorial Inteligente | Documentación Consolidada y SPA</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f7f7f7;
+            --bg-tertiary: #efefef;
+            --text-primary: #111111;
+            --text-secondary: #4a4a4a;
+            --text-muted: #767676;
+            --border-color: #d4d4d4;
+            --border-strong: #111111;
+            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --font-serif: 'Playfair Display', Georgia, serif;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.65;
+        }
+
+        .font-serif-custom {
+            font-family: var(--font-serif);
+        }
+
+        @media print {
+            aside, .top-toolbar, .no-print {
+                display: none !important;
+            }
+            main {
+                margin-left: 0 !important;
+                width: 100% !important;
+                padding: 0 !important;
+            }
+            body {
+                background: white !important;
+                color: black !important;
+            }
+            section {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body class="bg-white text-neutral-900 flex min-h-screen">
+
+    <!-- Sidebar Navigation (Swiss Minimalist) -->
+    <aside class="sidebar w-80 bg-neutral-100 border-r border-neutral-300 fixed top-0 left-0 h-screen overflow-y-auto p-6 flex flex-col justify-between z-50">
+        <div>
+            <div class="brand-header border-b-2 border-neutral-900 pb-4 mb-5">
+                <span class="text-[0.7rem] font-bold tracking-widest uppercase text-neutral-500 block mb-1">Ecosistema Editorial</span>
+                <h1 class="font-serif-custom text-2xl font-bold leading-tight tracking-tight">MADRE</h1>
+            </div>
+
+            <!-- SPA Filter Bar -->
+            <div class="spa-filter-bar flex flex-wrap gap-1.5 mb-4">
+                <button onclick="filterContent('all')" class="filter-btn active text-xs font-semibold px-2 py-1 border border-neutral-300 bg-white text-neutral-800 transition hover:bg-neutral-900 hover:text-white">Todo</button>
+                <button onclick="filterContent('prompt')" class="filter-btn text-xs font-semibold px-2 py-1 border border-neutral-300 bg-white text-neutral-800 transition hover:bg-neutral-900 hover:text-white">Prompt Maestro</button>
+                <button onclick="filterContent('memoria')" class="filter-btn text-xs font-semibold px-2 py-1 border border-neutral-300 bg-white text-neutral-800 transition hover:bg-neutral-900 hover:text-white">Memoria</button>
+                <button onclick="filterContent('cronologia')" class="filter-btn text-xs font-semibold px-2 py-1 border border-neutral-300 bg-white text-neutral-800 transition hover:bg-neutral-900 hover:text-white">Cronología</button>
+            </div>
+
+            <div class="nav-group-title text-[0.68rem] font-bold uppercase tracking-wider text-neutral-500 mt-4 mb-2">Navegación por Bloques</div>
+            <nav>
+                <ul class="space-y-1">
+                    <li><a href="#bloque-1" class="block text-xs text-neutral-700 hover:text-neutral-900 hover:bg-neutral-200 p-1.5 border-l-2 border-transparent hover:border-neutral-900 font-medium">1. Prompt Maestro y Misión</a></li>
+                    <li><a href="#bloque-2" class="block text-xs text-neutral-700 hover:text-neutral-900 hover:bg-neutral-200 p-1.5 border-l-2 border-transparent hover:border-neutral-900 font-medium">2. Definición del Producto y 6 Formatos</a></li>
+                    <li><a href="#bloque-3" class="block text-xs text-neutral-700 hover:text-neutral-900 hover:bg-neutral-200 p-1.5 border-l-2 border-transparent hover:border-neutral-900 font-medium">3. Memoria Consolidada de Consultas y Decisiones (1-31)</a></li>
+                    <li><a href="#bloque-4" class="block text-xs text-neutral-700 hover:text-neutral-900 hover:bg-neutral-200 p-1.5 border-l-2 border-transparent hover:border-neutral-900 font-medium">4. Arquitectura de 4 Capas y Modelo de Datos</a></li>
+                    <li><a href="#bloque-5" class="block text-xs text-neutral-700 hover:text-neutral-900 hover:bg-neutral-200 p-1.5 border-l-2 border-transparent hover:border-neutral-900 font-medium">5. Cronología de Pasos Numerados (1 al 21)</a></li>
+                </ul>
+            </nav>
+        </div>
+
+        <div class="sidebar-footer mt-6 pt-4 border-t border-neutral-300 text-xs text-neutral-600">
+            <p class="font-semibold text-neutral-900 mb-1">Repositorio Oficial:</p>
+            <a href="https://github.com/gabrielgenri/madre" target="_blank" class="text-neutral-900 underline break-all hover:text-blue-600">github.com/gabrielgenri/madre</a>
+            <div class="status-badge inline-flex items-center gap-1.5 mt-3 px-2 py-1 border border-neutral-900 bg-white text-[0.7rem] font-semibold">
+                <span class="status-dot w-2 h-2 rounded-full bg-emerald-600 animate-pulse"></span>
+                <span>Fuentes Sincronizadas (17 Nov 2026)</span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Top Action Toolbar -->
+    <header class="top-toolbar fixed top-0 right-0 left-80 bg-white/95 backdrop-blur border-b border-neutral-300 px-10 py-3 flex justify-between items-center z-40">
+        <div class="toolbar-info text-xs text-neutral-600 flex items-center gap-4">
+            <span class="font-semibold text-neutral-950">MADRE Ecosistema Editorial SPA</span>
+            <span class="hidden sm:inline">•</span>
+            <span class="hidden sm:inline">Gestión Integral, Versiones y Trazabilidad</span>
+        </div>
+        <div class="toolbar-actions flex gap-3">
+            <button onclick="window.print()" class="btn font-semibold text-xs bg-neutral-900 text-white px-4 py-2 rounded hover:bg-neutral-800 transition shadow-sm flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                Descargar Todo como PDF
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="ml-80 p-12 max-w-5xl mt-16 w-[calc(100%-20rem)] space-y-16">
+        
+        <!-- Header Banner -->
+        <div class="border-b border-neutral-300 pb-8 pt-4">
+            <span class="text-xs font-bold uppercase tracking-widest text-neutral-500 block mb-2">Documentación y Arquitectura Consolidada</span>
+            <h1 class="font-serif-custom text-4xl sm:text-5xl font-bold tracking-tight text-neutral-900 mb-4">MADRE — Ecosistema Editorial Inteligente</h1>
+            <p class="text-lg text-neutral-600 max-w-3xl leading-relaxed">
+                Aplicación web SPA construida con especificación suizo-minimalista. Contiene la totalidad de los contenidos institucionales, prompt maestro, memoria histórica, decisiones técnicas, modelo de datos y la cronología completa de pasos sin alteraciones.
+            </p>
+            <div class="mt-6 flex flex-wrap gap-4 text-xs font-medium text-neutral-700">
+                <span class="px-3 py-1 bg-neutral-100 border border-neutral-300 rounded">Repositorio: <a href="https://github.com/gabrielgenri/madre" target="_blank" class="underline text-neutral-900">gabrielgenri/madre</a></span>
+                <span class="px-3 py-1 bg-neutral-100 border border-neutral-300 rounded">Documento Auxiliar: <a href="https://gabrielgenri.github.io/madre/help/code.html" target="_blank" class="underline text-neutral-900">help/code.html</a></span>
+                <span class="px-3 py-1 bg-neutral-100 border border-neutral-300 rounded">Estado Base: ACTIVE_HEALTHY (sa-east-1)</span>
+            </div>
+        </div>
+
+        <!-- BLOQUE 1 -->
+        <section id="bloque-1" data-category="prompt" class="space-y-6">
+            <div class="border-b border-neutral-200 pb-2">
+                <span class="text-xs font-bold uppercase tracking-wider text-neutral-500">Bloque 01</span>
+                <h2 class="font-serif-custom text-2xl font-bold text-neutral-900">Prompt Maestro del Sistema Editorial (Secciones 1 a 30)</h2>
+            </div>
+            
+            <div class="prose max-w-none text-neutral-800 space-y-4 text-sm sm:text-base">
+                <h3 class="font-serif-custom text-xl font-bold text-neutral-900 mt-6">1. Rol del Agente y Misión</h3>
+                <p>Actúa como un equipo interdisciplinario de desarrollo tecnológico integrado por Arquitecto de Software Senior, Ingeniero Full Stack Senior, Especialista en JavaScript y aplicaciones SPA, Especialista en Supabase, PostgreSQL y seguridad, Ingeniero de IA y sistemas RAG, Especialista en UX/UI y accesibilidad WCAG, Especialista en procesamiento documental y transcripción, Ingeniero de datos, Especialista en SEO y Especialista en QA y pruebas automatizadas.</p>
+                <p>Tu misión es <strong>desarrollar e implementar desde cero MADRE</strong>, un ecosistema editorial inteligente, modular, escalable y preparado para producción, entregando funcionalidades reales, conectadas entre sí y verificables.</p>
+
+                <h3 class="font-serif-custom text-xl font-bold text-neutral-900 mt-6">2. Definición del Producto</h3>
+                <p>MADRE es un sistema web editorial inteligente que transforma información, documentos, fuentes, hechos, audios y datos en conocimiento periodístico verificable y posteriormente lo atomiza en múltiples formatos de comunicación, manteniendo trazabilidad, control editorial humano, memoria documental y capacidad de publicación multicanal.</p>
+                <p><strong>Principio rector:</strong> La IA es un componente de MADRE. No es MADRE. La inteligencia artificial asiste en las tareas de investigación, organización, análisis, redacción y edición. No reemplaza la verificación profesional, la responsabilidad editorial ni la autorización humana.</p>
+
+                <h3 class="font-serif-custom text-xl font-bold text-neutral-900 mt-6">3. Principios No Negociables</h3>
+                <ul class="list-disc pl-6 space-y-1">
+                    <li>No inventar información, fuentes, citas, datos ni documentos.</li>
+                    <li>No presentar interpretaciones como hechos.</li>
+                    <li>No confundir una declaración con la comprobación de lo declarado.</li>
+                    <li>No ocultar contradicciones ni eliminar automáticamente las dudas.</li>
+                    <li>No completar vacíos informativos mediante suposiciones ni generar afirmaciones sin respaldo.</li>
+                    <li>No publicar contenidos por decisión autónoma de la IA ni exponer claves en el frontend.</li>
+                    <li><strong>MADRE nunca debe confundir lo que recibe con lo que sabe.</strong></li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- BLOQUE 2 -->
+        <section id="bloque-2" data-category="prompt" class="space-y-6">
+            <div class="border-b border-neutral-200 pb-2">
+                <span class="text-xs font-bold uppercase tracking-wider text-neutral-500">Bloque 02</span>
+                <h2 class="font-serif-custom text-2xl font-bold text-neutral-900">Arquitectura de Capas y los Seis Formatos Canónicos</h2>
+            </div>
+
+            <div class="prose max-w-none text-neutral-800 space-y-4 text-sm sm:text-base">
+                <h3 class="font-serif-custom text-xl font-bold text-neutral-900 mt-6">Los Seis Formatos Oficiales</h3>
+                <p>El sistema produce exactamente seis formatos multiplataforma que derivan de la Unidad Editorial Madre:</p>
+                <ol class="list-decimal pl-6 space-y-2">
+                    <li><strong>Artículo Web / SEO:</strong> Título, bajada, introducción, desarrollo periodístico, subtítulos, contexto, datos, fuentes, slug, meta descripción, palabras clave y Schema.org.</li>
+                    <li><strong>Guion de Video / Reel de 60 segundos:</strong> Temporalizado (0-5s apertura, 5-15s hecho, 15-35s explicación, 35-50s contexto, 50-60s cierre).</li>
+                    <li><strong>Podcast "Primera Hora":</strong> Estructura apta para síntesis de voz (TTS).</li>
+                    <li><strong>Carrusel de Instagram:</strong> Exactamente 8 diapositivas con portada, hecho, actores, dato, contexto, explicación, consecuencias y cierre.</li>
+                    <li><strong>Newsletter:</strong> Asunto, preencabezado, título, introducción, síntesis, datos y enlace.</li>
+                    <li><strong>WhatsApp:</strong> Mensaje de difusión claro, con apertura atractiva e información central.</li>
+                </ol>
+            </div>
+        </section>
+
+        <!-- BLOQUE 3 -->
+        <section id="bloque-3" data-category="memoria" class="space-y-6">
+            <div class="border-b border-neutral-200 pb-2">
+                <span class="text-xs font-bold uppercase tracking-wider text-neutral-500">Bloque 03</span>
+                <h2 class="font-serif-custom text-2xl font-bold text-neutral-900">Memoria Consolidada de Consultas y Decisiones (Puntos 1 a 31)</h2>
+            </div>
+
+            <div class="prose max-w-none text-neutral-800 space-y-4 text-sm sm:text-base">
+                <p class="text-sm italic text-neutral-600">Documento de memoria histórica consolidada y definiciones del Proyecto Madre (Fechado el 17 de noviembre de 2026).</p>
+                
+                <h3 class="font-serif-custom text-lg font-bold text-neutral-900">Puntos Clave Registrados:</h3>
+                <ul class="list-disc pl-6 space-y-2">
+                    <li><strong>Identidad:</strong> Sistema web editorial inteligente orientado a transformar investigación, fuentes y hechos en contenidos periodísticos verificables.</li>
+                    <li><strong>Principio Operativo:</strong> Ingesta multifuente → Normalización → Investigación → Contraste → Contexto → Verificación → Contenido Madre → Atomización (6 formatos) → Borrador → Revisión humana → WordPress (como draft).</li>
+                    <li><strong>Infraestructura:</strong> Vite + JavaScript ES Modules + Supabase central (proyecto en región São Paulo `sa-east-1`, estado ACTIVE_HEALTHY).</li>
+                    <li><strong>Módulos Base:</strong> Madre Editorial, Biblioteca Riojana, Editor Crítico, Transcripción, Observatorios y Distribución.</li>
+                    <li><strong>Trazabilidad y Auditoría:</strong> Registro completo de operaciones, versionado append-only y cumplimiento riguroso de permisos RLS en Supabase.</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- BLOQUE 4 -->
+        <section id="bloque-4" data-category="memoria" class="space-y-6">
+            <div class="border-b border-neutral-200 pb-2">
+                <span class="text-xs font-bold uppercase tracking-wider text-neutral-500">Bloque 04</span>
+                <h2 class="font-serif-custom text-2xl font-bold text-neutral-900">Arquitectura de 4 Capas y Modelo de Datos</h2>
+            </div>
+
+            <div class="prose max-w-none text-neutral-800 space-y-4 text-sm sm:text-base">
+                <p>El sistema se organiza en cuatro capas claramente diferenciadas para garantizar estabilidad y seguridad:</p>
+                
+                <div class="bg-neutral-50 border border-neutral-300 p-4 rounded text-xs font-mono space-y-2">
+                    <p class="font-bold text-neutral-900">CAPA 1: Interfaz y Experiencia (Shell SPA modular)</p>
+                    <p class="font-bold text-neutral-900">CAPA 2: Núcleo Compartido (Auth, Supabase Client, Motor AI, Guía de Estilo)</p>
+                    <p class="font-bold text-neutral-900">CAPA 3: Datos y Persistencia (PostgreSQL, pgvector, Storage, Versionado)</p>
+                    <p class="font-bold text-neutral-900">CAPA 4: Seguridad y Distribución (RLS, Edge Functions, WordPress API REST)</p>
+                </div>
+
+                <h3 class="font-serif-custom text-lg font-bold text-neutral-900 mt-4">Entidades Principales en PostgreSQL</h3>
+                <p class="text-xs text-neutral-600">Tablas operativas configuradas con políticas RLS e índices:</p>
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs font-mono bg-neutral-100 p-4 rounded border border-neutral-200">
+                    <span>• profiles</span>
+                    <span>• roles</span>
+                    <span>• editorial_units</span>
+                    <span>• editorial_facts</span>
+                    <span>• editorial_claims</span>
+                    <span>• sources</span>
+                    <span>• evidences</span>
+                    <span>• editorial_formats</span>
+                    <span>• editorial_versions</span>
+                    <span>• editorial_reviews</span>
+                    <span>• editorial_audit</span>
+                    <span>• library_records</span>
+                    <span>• observatories</span>
+                    <span>• distributions</span>
+                    <span>• media_assets</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- BLOQUE 5 -->
+        <section id="bloque-5" data-category="cronologia" class="space-y-6">
+            <div class="border-b border-neutral-200 pb-2">
+                <span class="text-xs font-bold uppercase tracking-wider text-neutral-500">Bloque 05</span>
+                <h2 class="font-serif-custom text-2xl font-bold text-neutral-900">Cronología de Pasos Numerados (1 al 21)</h2>
+            </div>
+
+            <div class="space-y-6 text-sm sm:text-base text-neutral-800">
+                <div class="border-l-2 border-neutral-900 pl-4 space-y-1">
+                    <span class="text-xs font-bold text-neutral-500 uppercase">Pasos 01 al 10</span>
+                    <h3 class="font-bold text-neutral-900">Definiciones conceptuales y alcance inicial</h3>
+                    <p>Estructuración del prompt maestro, establecimiento de reglas editoriales, definición de los 6 formatos canónicos y diseño preliminar del flujo editorial.</p>
+                </div>
+
+                <div class="border-l-2 border-neutral-900 pl-4 space-y-1">
+                    <span class="text-xs font-bold text-neutral-500 uppercase">Pasos 11 al 14</span>
+                    <h3 class="font-bold text-neutral-900">Infraestructura Supabase y Versionado</h3>
+                    <p>Despliegue del backend en São Paulo, creación de tablas relacionales en PostgreSQL con RLS, y activación del sistema de versionado editorial append-only (<code class="bg-neutral-100 px-1 rounded">editorial_versions</code>).</p>
+                </div>
+
+                <div class="border-l-2 border-neutral-900 pl-4 space-y-1">
+                    <span class="text-xs font-bold text-neutral-500 uppercase">Pasos 15 al 17</span>
+                    <h3 class="font-bold text-neutral-900">Atomización, IA y Control de Calidad</h3>
+                    <p>Implementación de los 6 identificadores de formatos oficiales, integración de Edge Functions con proxy seguro de IA y despliegue del módulo de control de calidad editorial preventivo.</p>
+                </div>
+
+                <div class="border-l-2 border-neutral-900 pl-4 space-y-1">
+                    <span class="text-xs font-bold text-neutral-900 uppercase">Pasos 18 al 21</span>
+                    <h3 class="font-bold text-neutral-900">Flujo de Revisión, Bandeja y Dashboard</h3>
+                    <p>Configuración del circuito formal de aprobación humana (borrador → revisado → publicado), bandeja operativa por roles y el dashboard de gestión con indicadores operativos e historial de publicaciones.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer Note -->
+        <div class="border-t border-neutral-300 pt-8 text-center text-xs text-neutral-500 space-y-2">
+            <p>Proyecto Madre — Arquitectura y Documentación Consolidada.</p>
+            <p>Repositorio Oficial: <a href="https://github.com/gabrielgenri/madre" target="_blank" class="text-neutral-900 font-semibold underline">https://github.com/gabrielgenri/madre</a></p>
+        </div>
+
+    </main>
+
+    <!-- Filter Script -->
+    <script>
+        function filterContent(category) {
+            const sections = document.querySelectorAll('main section');
+            const buttons = document.querySelectorAll('.filter-btn');
+
+            buttons.forEach(btn => btn.classList.remove('active', 'bg-neutral-900', 'text-white'));
+            event.target.classList.add('active', 'bg-neutral-900', 'text-white');
+
+            sections.forEach(sec => {
+                if (category === 'all' || sec.getAttribute('data-category') === category) {
+                    sec.style.display = 'block';
+                } else {
+                    sec.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>
