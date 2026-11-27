@@ -1,0 +1,1664 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MADRE — Prompt Maestro del Sistema Editorial</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<style>
+  :root{
+    --bg:#f7f7f5; --paper:#ffffff; --ink:#1c1c1c; --muted:#6b6b6b;
+    --line:#e5e5e5; --user-bg:#eef2ff; --user-border:#d8e0ff;
+    --accent:#4b5563; --tag-bg:#f0f0f0; --radius:14px; --maxw:820px;
+    --defect-bg:#fdecea; --defect-border:#e74c3c; --defect-ink:#a83222;
+    --defect-warn:#fff3cd; --defect-warn-border:#d4b106;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.65;font-size:16px;-webkit-font-smoothing:antialiased;}
+  [hidden]{display:none!important;}
+.prompt-maestro-bloque {
+  background: linear-gradient(to bottom, #fafafa 0%, #ffffff 100%);
+  border: 2px solid #111;
+  border-radius: 14px;
+  padding: 32px 28px;
+  margin-top: 40px;
+  box-shadow: 0 4px 12px rgba(0,0,0,.05);
+}
+.prompt-maestro-bloque h1.portada {
+  font-size: 1.8rem;
+  text-align: center;
+  border-bottom: none;
+  padding: 0;
+  margin: 0 0 8px;
+  color: #111;
+}
+.prompt-maestro-bloque h2.subtitulo-portada {
+  text-align: center;
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: var(--muted);
+  margin: 0 0 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--line);
+}
+.prompt-seccion {
+  margin: 28px 0;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+.prompt-seccion:first-of-type {
+  border-top: none;
+  padding-top: 0;
+}
+.prompt-seccion h2 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #111;
+  margin: 0 0 12px;
+  padding: 0;
+}
+.prompt-seccion h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #222;
+  margin: 18px 0 8px;
+}
+.prompt-seccion h4 {
+  font-size: .95rem;
+  font-weight: 700;
+  color: #333;
+  margin: 14px 0 6px;
+}
+.principio-final {
+  background: #111;
+  color: #f5f5f5;
+  border-radius: 14px;
+  padding: 28px 28px;
+  margin-top: 40px;
+  text-align: center;
+}
+.principio-final h2 {
+  color: #fff;
+  margin: 0 0 16px;
+  font-size: 1.3rem;
+}
+.principio-final .frase {
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: .5px;
+  margin: 12px 0;
+  color: #9ec1ff;
+}
+.principio-final p {
+  margin: 10px 0;
+  line-height: 1.7;
+}
+  .topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 22px;background:rgba(255,255,255,.85);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);}
+  .topbar h1{font-size:15px;font-weight:600;margin:0;letter-spacing:.2px;color:var(--accent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .topbar .brand{display:flex;align-items:center;gap:8px;min-width:0;}
+  .topbar .dot{width:10px;height:10px;border-radius:50%;background:#16a34a;flex:0 0 auto;}
+  .actions{display:flex;gap:8px;flex:0 0 auto;}
+  .btn{appearance:none;border:1px solid var(--line);background:var(--paper);color:var(--ink);padding:8px 14px;border-radius:999px;font-size:13.5px;font-weight:600;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:6px;}
+  .btn:hover{background:#f0f0f0;}
+  .btn.primary{background:var(--ink);color:#fff;border-color:var(--ink);}
+  .btn.primary:hover{background:#000;}
+
+  .canvas{max-width:var(--maxw);margin:28px auto 80px;padding:0 18px;}
+
+  .turno{margin-bottom:26px;}
+  .separador{display:flex;justify-content:center;padding:18px 0 10px;color:var(--muted);font-size:12.5px;}
+  .separador time{font-weight:400;}
+  .separador time .dia{font-weight:600;color:#444;}
+
+  .mensaje{margin-bottom:22px;}
+  .mensaje .rol{font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--muted);margin:0 0 6px 2px;}
+  .mensaje.usuario{display:flex;flex-direction:column;align-items:flex-end;}
+  .mensaje.usuario .rol{align-self:flex-end;margin-right:2px;}
+  .burbuja{background:var(--user-bg);border:1px solid var(--user-border);color:#1f2937;padding:14px 18px;border-radius:var(--radius);max-width:85%;font-size:15.5px;white-space:pre-wrap;word-wrap:break-word;}
+  .mensaje.asistente .contenido-ia{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);padding:26px 28px;box-shadow:0 1px 2px rgba(0,0,0,.03);}
+
+  .contenido-ia h1{font-size:1.5rem;line-height:1.3;font-weight:700;margin:0 0 18px;padding-bottom:12px;border-bottom:2px solid var(--line);}
+  .contenido-ia h2{font-size:1.22rem;font-weight:700;margin:30px 0 12px;}
+  .contenido-ia h3{font-size:1.06rem;font-weight:700;margin:24px 0 10px;color:#111;}
+  .contenido-ia h4{font-size:.98rem;font-weight:700;margin:20px 0 8px;color:#222;}
+  .contenido-ia p{margin:0 0 12px;}
+  .contenido-ia strong{font-weight:700;}
+  .contenido-ia ol,.contenido-ia ul{margin:0 0 14px;padding-left:24px;}
+  .contenido-ia li{margin:4px 0;}
+  .contenido-ia blockquote{margin:16px 0;padding:14px 18px;background:#fafafa;border-left:4px solid var(--accent);border-radius:8px;color:#222;}
+  .contenido-ia blockquote p:last-child{margin-bottom:0;}
+  .contenido-ia hr{border:0;border-top:1px solid var(--line);margin:24px 0;}
+  .contenido-ia code{background:#f2f2f2;padding:1px 6px;border-radius:4px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.88em;word-break:break-all;}
+  .contenido-ia a{color:#1a4fa0;text-decoration:underline;text-decoration-style:dotted;}
+
+  .flujo{margin:18px 0;padding:16px 18px;background:#fbfbfb;border:1px dashed var(--line);border-radius:10px;font-size:14.5px;line-height:1.55;}
+  .flujo p{margin:0 0 6px;}
+  .flujo .arrow{display:block;text-align:center;color:var(--muted);margin:8px 0;font-size:16px;}
+
+  .capa{border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin:16px 0;background:#fff;}
+  .capa h2{margin-top:0!important;}
+  .capa .subtitulo{font-size:13px;color:var(--muted);margin:0 0 14px;}
+  .capa .items{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}
+  .capa .items span{background:#f4f4f4;border-radius:8px;padding:9px 12px;font-size:13.5px;text-align:center;color:#333;}
+  .arrow-big{text-align:center;color:var(--muted);font-size:20px;margin:4px 0;}
+
+  .fuente{display:inline-block;background:var(--tag-bg);border:1px solid #e0e0e0;border-radius:6px;padding:1px 7px;font-size:11.5px;font-weight:600;color:#555;vertical-align:middle;margin:0 2px;white-space:nowrap;}
+  .fuente::before{content:"📄 ";}
+
+  .tabla-flujo{width:100%;border-collapse:collapse;margin:14px 0;font-size:14px;}
+  .tabla-flujo th,.tabla-flujo td{text-align:left;padding:9px 12px;border:1px solid var(--line);vertical-align:top;}
+  .tabla-flujo th{background:#f7f7f7;font-weight:700;font-size:13px;}
+  .tabla-flujo td strong{color:#111;}
+  .tabla-flujo td code{font-size:12.5px;}
+
+  .entidad{border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:16px 0;background:#fcfcfc;}
+  .entidad .entidad-titulo{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 10px;flex-wrap:wrap;}
+  .entidad .entidad-titulo h3{margin:0;font-size:1rem;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;}
+  .entidad .entidad-titulo .pk{background:#111;color:#fff;border-radius:6px;padding:1px 8px;font-size:11px;font-weight:700;letter-spacing:.4px;}
+  .entidad .entidad-desc{font-size:13px;color:var(--muted);margin:0 0 12px;}
+  .entidad table{width:100%;border-collapse:collapse;font-size:13.5px;}
+  .entidad table th,.entidad table td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--line);vertical-align:top;}
+  .entidad table th{background:#f4f4f4;font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.4px;color:#444;}
+  .entidad table tr:last-child td{border-bottom:none;}
+  .entidad table td code{font-size:12.5px;background:#f0f0f0;padding:1px 5px;border-radius:4px;}
+  .entidad table .tipo{color:#7a7a7a;font-size:12px;font-family:ui-monospace,monospace;white-space:nowrap;}
+  .req{color:#c0392b;font-weight:700;}
+  .op{color:#7a7a7a;}
+
+  .estados{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0;}
+  .estado{border-radius:8px;padding:8px 14px;font-size:13px;font-weight:600;border:1px solid var(--line);background:#fff;}
+  .estado.borrador{background:#f4f4f4;color:#444;border-color:#ddd;}
+  .estado.verificacion{background:#fff8e1;color:#8a6d00;border-color:#f0e0a0;}
+  .estado.revisada{background:#e8f0fe;color:#1a4fa0;border-color:#c8d8f4;}
+  .estado.publicada{background:#e8f8ec;color:#1e7a3a;border-color:#bde5c8;}
+  .estado.corregida{background:#fdecea;color:#a83222;border-color:#f4c8c2;}
+  .estado.archivada{background:#eee;color:#666;border-color:#ddd;}
+
+  .cierre{background:#111;color:#f5f5f5;border-radius:14px;padding:26px 28px;margin-top:20px;}
+  .cierre h2{color:#fff;margin-top:0;}
+  .cierre blockquote{background:#1c1c1c;border-left:4px solid #9ec1ff;color:#e8e8e8;}
+
+  .modulo{border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:14px 0;background:#fff;}
+  .modulo .modulo-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 10px;flex-wrap:wrap;}
+  .modulo .modulo-head h3{margin:0;font-size:1rem;}
+  .modulo .modulo-head .tag{background:#eef2ff;color:#1a4fa0;border-radius:6px;padding:1px 8px;font-size:11px;font-weight:700;letter-spacing:.3px;}
+  .modulo .meta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:10px 0;}
+  .modulo .meta div{background:#fafafa;border-radius:8px;padding:8px 10px;font-size:12.5px;}
+  .modulo .meta div strong{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);margin-bottom:2px;}
+
+  .formatos{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:14px 0;}
+  .formato{border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:#fcfcfc;font-size:13.5px;}
+  .formato .formato-title{font-weight:700;margin:0 0 4px;font-size:14px;}
+  .formato .formato-meta{color:var(--muted);font-size:12px;margin:0 0 6px;}
+
+  /* Badges */
+  .badge{display:inline-block;padding:2px 10px;border-radius:6px;font-size:11.5px;font-weight:600;letter-spacing:.2px;vertical-align:middle;}
+  .badge.success{background:#e8f8ec;color:#1e7a3a;border:1px solid #bde5c8;}
+  .badge.warning{background:#fff8e1;color:#8a6d00;border:1px solid #f0e0a0;}
+  .badge.neutral{background:#f4f4f4;color:#555;border:1px solid #ddd;}
+  .badge.info{background:#e8f0fe;color:#1a4fa0;border:1px solid #c8d8f4;}
+
+  /* Grid numerado */
+  .grid-num{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:16px 0;}
+  .grid-num .item{border:1px solid var(--line);border-radius:10px;padding:14px 16px;background:#fcfcfc;}
+  .grid-num .item .num{font-size:1.5rem;font-weight:700;color:#1a4fa0;line-height:1;margin:0 0 6px;}
+  .grid-num .item .titulo{font-weight:700;margin:0 0 4px;font-size:14.5px;}
+  .grid-num .item .desc{color:var(--muted);font-size:13px;margin:0;}
+
+  /* Grid de formatos */
+  .grid-formatos{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:14px 0;padding:16px;background:#fafafa;border:1px solid var(--line);border-radius:12px;}
+  .grid-formatos .ft{border:1px solid var(--line);border-radius:10px;padding:14px 16px;background:#fff;text-align:center;}
+  .grid-formatos .ft .ft-title{font-weight:700;font-size:14.5px;margin:0 0 4px;color:#111;}
+  .grid-formatos .ft .ft-desc{font-size:12.5px;color:var(--muted);margin:0;}
+
+  /* Diagrama de versiones */
+  .diagrama-version{border:1px solid var(--line);border-radius:12px;padding:18px 16px;margin:16px 0;background:#fcfcfc;}
+  .diagrama-version .dv-box{background:#f0f0f0;border-radius:8px;padding:12px 16px;text-align:center;font-weight:700;font-size:14px;color:#111;margin:0 auto;max-width:320px;}
+  .diagrama-version .dv-arrow{text-align:center;color:var(--muted);font-size:20px;margin:6px 0;}
+  .diagrama-version .dv-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:12px 0;}
+  .diagrama-version .dv-item{border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:#fff;text-align:center;font-size:13px;}
+  .diagrama-version .dv-item .dv-nombre{font-weight:600;margin:0 0 6px;font-size:13.5px;color:#222;}
+  .diagrama-version .dv-alerta{background:#fff8e1;border:1px solid #f0e0a0;border-radius:8px;padding:12px 16px;text-align:center;font-weight:700;font-size:13.5px;color:#8a6d00;margin-top:8px;}
+
+  /* Lista de verificación */
+  .check-list{list-style:none;padding:0;margin:14px 0;}
+  .check-list .check-item{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid #f0f0f0;font-size:14px;}
+  .check-list .check-item:last-child{border-bottom:none;}
+  .check-list .check-icon{flex:0 0 auto;width:20px;height:20px;margin-top:1px;}
+  .check-list .check-icon.ok{color:#1e7a3a;}
+  .check-list .check-icon.pend{color:#8a6d00;}
+
+  /* Pill */
+  .pill-openai{display:inline-flex;align-items:center;gap:6px;background:#f0f0f0;border-radius:8px;padding:2px 8px;font-size:11px;color:#555;font-weight:600;vertical-align:middle;margin:0 2px;}
+  .pill-openai::before{content:"";width:10px;height:10px;background:#10a37f;border-radius:2px;display:inline-block;}
+  .pill-supabase{display:inline-flex;align-items:center;gap:6px;background:#f0f0f0;border-radius:8px;padding:2px 8px;font-size:11px;color:#555;font-weight:600;vertical-align:middle;margin:0 2px;}
+  .pill-supabase::before{content:"";width:10px;height:10px;background:#3ecf8e;border-radius:2px;display:inline-block;}
+
+  /* Bloque de métricas */
+  .metricas{border:1px solid var(--line);border-radius:12px;background:#fcfcfc;padding:0;margin:16px 0;overflow:hidden;}
+  .metricas .metrica{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 18px;border-bottom:1px solid var(--line);font-size:14px;}
+  .metricas .metrica:last-child{border-bottom:none;}
+  .metricas .metrica .label{color:#333;flex:1;min-width:0;}
+  .metricas .metrica .valor{font-weight:700;font-size:15px;color:#111;white-space:nowrap;}
+
+  /* Caja de verificaciones */
+  .caja-verif{border:1px solid var(--line);border-radius:12px;background:#fcfcfc;padding:0;margin:16px 0;overflow:hidden;}
+  .caja-verif .fila{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 18px;border-bottom:1px solid var(--line);font-size:14px;flex-wrap:wrap;}
+  .caja-verif .fila:last-child{border-bottom:none;}
+  .caja-verif .fila .lbl{color:#333;font-weight:600;}
+  .caja-verif .fila .descripcion{width:100%;font-size:13px;color:var(--muted);margin:4px 0 0;padding-top:6px;border-top:1px dashed #eee;}
+
+  /* Tarjetas de bandeja */
+  .grid-bandeja{display:grid;grid-template-columns:1fr;gap:12px;margin:16px 0;}
+  .grid-bandeja .b-item{border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:#fcfcfc;display:flex;gap:14px;align-items:flex-start;}
+  .grid-bandeja .b-item .b-icon{flex:0 0 auto;font-size:22px;line-height:1;margin-top:2px;}
+  .grid-bandeja .b-item .b-body{flex:1;min-width:0;}
+  .grid-bandeja .b-item .b-titulo{font-weight:700;margin:0 0 4px;font-size:14.5px;color:#111;}
+  .grid-bandeja .b-item .b-desc{font-size:13.5px;color:#444;margin:0;}
+
+  /* Aviso + Código defectuoso */
+  .aviso-corte{background:var(--defect-warn);border:1px solid var(--defect-warn-border);border-left:5px solid #d4b106;border-radius:10px;padding:12px 16px;margin:14px 0 8px;font-size:13.5px;color:#7a5c00;font-weight:500;}
+  .aviso-corte::before{content:"⚠️ ";font-weight:700;}
+  .code-defectuoso{background:var(--defect-bg);border:2px solid var(--defect-border);border-radius:12px;margin:14px 0;overflow:hidden;box-shadow:0 0 0 3px rgba(231,76,60,.10);}
+  .code-defectuoso .code-head{display:flex;align-items:center;justify-content:space-between;background:#fbd6d1;padding:8px 14px;border-bottom:1px solid #f0b8b0;font-size:12.5px;font-weight:700;color:var(--defect-ink);}
+  .code-defectuoso .code-head .badge-cortado{background:var(--defect-border);color:#fff;border-radius:6px;padding:2px 9px;font-size:11px;letter-spacing:.5px;text-transform:uppercase;}
+  .code-defectuoso pre{margin:0;padding:16px 18px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13.5px;line-height:1.6;color:#7a2820;background:#fff7f6;white-space:pre-wrap;word-break:break-word;}
+  .code-defectuoso .corte-line{display:inline-block;background:var(--defect-border);color:#fff;font-weight:700;padding:0 6px;border-radius:4px;margin-left:4px;font-size:11px;letter-spacing:.4px;}
+  .code-defectuoso .cursor-corte{display:inline-block;width:9px;height:16px;background:var(--defect-border);vertical-align:text-bottom;margin-left:2px;animation:parpadeo 1s steps(2,start) infinite;}
+  @keyframes parpadeo{to{visibility:hidden;}}
+
+  /* Actividad cortada */
+  .actividad-corte{background:#fafafa;border:1px dashed var(--line);border-radius:12px;padding:14px 18px;margin:14px 0;font-size:13.5px;color:var(--muted);}
+  .actividad-corte .act-line{display:flex;align-items:center;gap:8px;margin:6px 0;opacity:.85;}
+  .actividad-corte .act-line .act-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#c9c9c9;flex:0 0 auto;}
+
+  /* === PROMPT MAESTRO — documento rector === */
+  .prompt-maestro-bloque{
+    background:#ffffff;
+    border:2px solid #111;
+    border-radius:14px;
+    padding:32px 28px;
+    margin-top:40px;
+    box-shadow:0 4px 16px rgba(0,0,0,.06);
+  }
+  .prompt-portada{
+    text-align:center;
+    padding-bottom:24px;
+    border-bottom:2px solid #111;
+    margin-bottom:28px;
+  }
+  .prompt-portada h1{
+    font-family:"Playfair Display",Georgia,serif;
+    font-size:1.85rem;
+    font-weight:700;
+    letter-spacing:1px;
+    color:#111;
+    margin:0 0 8px;
+    padding:0;
+    border:none;
+    line-height:1.25;
+  }
+  .prompt-portada h2{
+    font-family:"Playfair Display",Georgia,serif;
+    font-size:1.1rem;
+    font-weight:500;
+    color:#555;
+    margin:0 0 18px;
+    padding:0;
+    border:none;
+    letter-spacing:.5px;
+  }
+  .prompt-portada .badges{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;}
+  .prompt-seccion{
+    margin:28px 0;
+    padding-top:22px;
+    border-top:1px solid var(--line);
+  }
+  .prompt-seccion:first-of-type{
+    border-top:none;
+    padding-top:0;
+    margin-top:0;
+  }
+  .prompt-seccion h2{
+    font-size:1.15rem;
+    font-weight:700;
+    color:#111;
+    margin:0 0 12px;
+    padding:0;
+    border:none;
+    letter-spacing:.2px;
+  }
+  .prompt-seccion h3{
+    font-size:1rem;
+    font-weight:700;
+    color:#222;
+    margin:18px 0 8px;
+  }
+  .prompt-seccion h4{
+    font-size:.94rem;
+    font-weight:700;
+    color:#333;
+    margin:14px 0 6px;
+  }
+  .principio-final{
+    background:#111;
+    color:#f5f5f5;
+    border-radius:14px;
+    padding:32px 28px;
+    margin-top:36px;
+    text-align:center;
+  }
+  .principio-final h2{
+    font-family:"Playfair Display",Georgia,serif;
+    color:#fff;
+    font-size:1.3rem;
+    margin:0 0 16px;
+    letter-spacing:1px;
+  }
+  .principio-final .frase{
+    font-size:1rem;
+    font-weight:700;
+    letter-spacing:1px;
+    margin:14px 0;
+    color:#9ec1ff;
+  }
+  .principio-final p{
+    margin:10px 0;
+    line-height:1.7;
+    color:#e8e8e8;
+  }
+  .principio-final strong{color:#fff;}
+
+  @media print{
+    body{background:#fff;}
+    .topbar{position:static;box-shadow:none;border-bottom:1px solid #ccc;}
+    .actions{display:none!important;}
+    .canvas{max-width:100%;margin:0;padding:0;}
+    .mensaje.asistente .contenido-ia{box-shadow:none;border:none;padding:0;}
+    .mensaje.usuario .burbuja{background:#f4f4f4;border:1px solid #ddd;}
+    .capa,.flujo,.tabla-flujo,.entidad,.cierre,.modulo,.formato,.aviso-corte,.code-defectuoso,.grid-num .item,.metricas,.grid-formatos,.diagrama-version,.check-list,.caja-verif,.grid-bandeja .b-item,.actividad-corte,.prompt-seccion,.prompt-portada,.principio-final{break-inside:avoid;}
+    .turno{page-break-inside:auto;}
+    h1,h2,h3{break-after:avoid;}
+    .cierre{background:#fff;color:#111;border:2px solid #111;}
+    .cierre h2{color:#111;}
+    .cierre blockquote{background:#f4f4f4;border-left:4px solid #111;color:#111;}
+    .code-defectuoso .cursor-corte{animation:none;background:#000;}
+    .prompt-maestro-bloque{border-width:1px;box-shadow:none;}
+    .principio-final{background:#fff;color:#111;border:2px solid #111;}
+    .principio-final h2{color:#111;}
+    .principio-final p{color:#111;}
+    .principio-final .frase{color:#1a4fa0;}
+  }
+  @media (max-width:640px){
+    .capa .items{grid-template-columns:1fr;}
+    .burbuja{max-width:100%;}
+    .contenido-ia{padding:18px 16px!important;}
+    .topbar h1{font-size:13px;}
+    .tabla-flujo{font-size:12.5px;}
+    .entidad table{font-size:12.5px;}
+    .formatos{grid-template-columns:1fr;}
+    .grid-num{grid-template-columns:1fr;}
+    .grid-formatos{grid-template-columns:1fr;}
+    .diagrama-version .dv-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+    .modulo .meta{grid-template-columns:1fr;}
+    .metricas .metrica{flex-direction:column;align-items:flex-start;gap:2px;}
+    .caja-verif .fila{flex-direction:column;align-items:flex-start;gap:4px;}
+    .grid-bandeja .b-item{flex-direction:column;gap:6px;}
+    .prompt-maestro-bloque{padding:22px 18px;}
+    .prompt-portada h1{font-size:1.5rem;}
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="dot" aria-hidden="true"></span>
+    <h1>MADRE · Prompt Maestro del Sistema Editorial</h1>
+  </div>
+  <div class="actions">
+    <button class="btn" onclick="window.print()">🖨️ Imprimir</button>
+    <button class="btn primary" onclick="descargarPDF()">⬇️ Descargar PDF</button>
+  </div>
+</header>
+
+<main class="canvas" id="contenido">
+
+  <!-- =========================================================
+       PASO 1 · Definición
+       ========================================================= -->
+  <section class="turno">
+    <div class="separador"><time datetime="2026-11-14T02:56:50.317Z"><span class="dia">viernes</span> 23:56</time></div>
+
+    <div class="mensaje usuario">
+      <h4 class="rol">Tú</h4>
+      <div class="burbuja">Vamos a iniciar una conversacion paso a paso donde el objetivo es crear el prompt para el desarrollo del sistema web Madre, usaras la fuente llamada "Mejorar Prompt" para iniciar</div>
+    </div>
+
+    <div class="mensaje asistente">
+      <h4 class="rol">ChatGPT</h4>
+      <div class="contenido-ia">
+        <p>Perfecto. Vamos a construir el <strong>prompt maestro para el desarrollo del sistema web Madre</strong> de manera progresiva, sin saltarnos etapas.</p>
+        <p>Tomaré <strong>"Mejorar Prompt" como fuente inicial</strong>, respetando lo que allí está definido y separando posteriormente:</p>
+        <ol>
+          <li><strong>Lo que ya está decidido</strong> en la fuente.</li>
+          <li><strong>Lo que debemos mejorar o precisar</strong>.</li>
+          <li><strong>Lo que falta definir</strong>.</li>
+          <li><strong>Las decisiones técnicas</strong> que deberán quedar expresadas en el prompt final.</li>
+        </ol>
+        <p>La fuente establece como núcleo de Madre un motor de transformación de contenidos que recibe una entrada y la atomiza en <strong>6 formatos</strong>: artículo web/SEO, Reel de 60 segundos, podcast, carrusel de 8 diapositivas, newsletter y WhatsApp. También plantea Supabase, pgvector, Edge Functions, seguridad de API keys, flujo editorial con revisión humana, Editor Crítico, transcripción y almacenamiento/historial. <span class="fuente">Mejorar-Prompt</span></p>
+        <p>Además, hay una cuestión fundamental que incorporaremos desde el comienzo: <strong>Madre no será simplemente un generador de textos</strong>. La arquitectura deberá integrar el proceso editorial: investigación → producción → verificación → edición humana → publicación y seguimiento.</p>
+        <h3>PASO 1 — Definir qué estamos construyendo</h3>
+        <blockquote>
+          <p><strong>MADRE</strong> es el sistema web editorial inteligente que transforma información, documentos, fuentes y hechos en conocimiento periodístico verificable y posteriormente lo atomiza en múltiples formatos de comunicación, manteniendo trazabilidad, control editorial humano, memoria documental y capacidad de publicación multicanal.</p>
+        </blockquote>
+        <div class="flujo">
+          <p><strong>ENTRADA</strong> → Procesamiento → Núcleo editorial → Atomización → Distribución → Memoria</p>
+        </div>
+        <p><strong>No escribiría todavía el prompt definitivo.</strong> Primero tenemos que cerrar la arquitectura conceptual y funcional.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PASO 2 · Definición funcional (con bloque defectuoso) -->
+  <section class="turno">
+    <div class="separador"><time><span class="dia">PASO 2</span> · Definir funcionalmente qué es Madre</time></div>
+    <div class="mensaje asistente">
+      <h4 class="rol">ChatGPT</h4>
+      <div class="contenido-ia">
+        <h2>PASO 2 — DEFINIR FUNCIONALMENTE QUÉ ES MADRE</h2>
+        <blockquote>
+          <p><strong>Madre es un sistema editorial inteligente que recibe información, hechos, documentos, audios, fuentes y datos; los organiza, contextualiza, verifica y transforma bajo reglas editoriales definidas, para producir conocimiento periodístico y posteriormente atomizarlo en distintos formatos y canales.</strong></p>
+        </blockquote>
+        <p><strong>La IA no es Madre.</strong> La IA es un <strong>motor dentro de Madre</strong>.</p>
+        <h3>Los seis formatos quedan fijados</h3>
+        <ol>
+          <li>Artículo Web + SEO</li>
+          <li>Reel / Video de 60 segundos</li>
+          <li>Podcast "Primera Hora"</li>
+          <li>Carrusel de Instagram de 8 diapositivas</li>
+          <li>Newsletter</li>
+          <li>WhatsApp</li>
+        </ol>
+        <h3>Dos capas que no debemos confundir</h3>
+        <ul>
+          <li><strong>Capa editorial:</strong> qué sabemos, de dónde surge, qué está verificado, qué falta comprobar.</li>
+          <li><strong>Capa de atomización:</strong> cómo transformamos ese contenido para cada canal.</li>
+        </ul>
+        <div class="aviso-corte">
+          La fuente original se corta aquí, a mitad del bloque <code>&lt;code&gt;</code>. El contenido del ejemplo JSON del "núcleo editorial estructurado" quedó incompleto.
+        </div>
+        <div class="code-defectuoso" role="alert">
+          <div class="code-head">
+            <span>Texto sin formato · ejemplo del núcleo editorial estructurado</span>
+            <span class="badge-cortado">✂ CORTADO</span>
+          </div>
+          <pre>{
+  "pieza": {
+    "hechos": [],
+    "fuentes": [],
+    "contexto": [],
+    "verificacion": [],
+    "estado": "borrador"
+    <span class="corte-line">▮ FUENTE CORTADA AQUÍ</span><span class="cursor-corte" aria-hidden="true"></span>
+  }
+}</pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PASOS 3–10 · puentes -->
+  <section class="turno">
+    <div class="separador"><time><span class="dia">PASOS 3–10</span> · Puentes</time></div>
+    <div class="mensaje asistente">
+      <h4 class="rol">ChatGPT</h4>
+      <div class="contenido-ia">
+        <p class="op"><em>Contenido puente: 6 formatos canónicos (3), motor de IA / callIA (4), Guía de Estilo versionada (5), Editor Crítico (6), transcripción de audio (7), Biblioteca Riojana (8), Observatorios (9) y Centro de Distribución (10).</em></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PASO 11 · Arquitectura -->
+  <section class="turno">
+    <div class="separador"><time><span class="dia">PASO 11</span> · Arquitectura de 4 capas</time></div>
+    <div class="mensaje asistente">
+      <h4 class="rol">ChatGPT</h4>
+      <div class="contenido-ia">
+        <h1>PASO 11. ARQUITECTURA GENERAL DE SOFTWARE</h1>
+        <div class="capa"><h2>CAPA 1 · INTERFAZ Y EXPERIENCIA</h2><div class="items"><span>Madre Editorial</span><span>Biblioteca Riojana</span><span>Editor Crítico</span><span>Observatorios</span><span>Transcripción</span><span>Centro de Distribución</span></div></div>
+        <div class="arrow-big">⇅</div>
+        <div class="capa"><h2>CAPA 2 · NÚCLEO COMPARTIDO</h2><div class="items"><span>Auth y sesión</span><span>Supabase</span><span>IA / callIA</span><span>Guía de estilo</span><span>Roles</span><span>Versiones</span><span>Auditoría</span></div></div>
+        <div class="arrow-big">⇅</div>
+        <div class="capa"><h2>CAPA 3 · DATOS Y PERSISTENCIA</h2><div class="items"><span>PostgreSQL</span><span>pgvector</span><span>Storage</span><span>Historial</span><span>Backups</span><span>Búsqueda semántica</span></div></div>
+        <div class="arrow-big">⇅</div>
+        <div class="capa"><h2>CAPA 4 · SEGURIDAD Y DISTRIBUCIÓN</h2><div class="items"><span>RLS</span><span>Edge Functions</span><span>API keys</span><span>WordPress</span><span>Redes</span><span>Logs</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PASO 12 · Modelo de datos -->
+  <section class="turno">
+    <div class="separador"><time><span class="dia">PASO 12</span> · Modelo de datos</time></div>
+    <div class="mensaje asistente">
+      <h4 class="rol">ChatGPT</h4>
+      <div class="contenido-ia">
+        <h2>PASO 12. MODELO DE DATOS CONCRETO</h2>
+        <p>Entidades: <code>piezas</code>, <code>fuentes</code>, <code>versiones</code>, <code>publicaciones</code>, <code>canales</code>, <code>usuarios</code>. Estados editoriales: borrador → en_verificacion → revisada → publicada → corregida / archivada.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PASO 13 · Cierre -->
+  <section class="turno">
+    <div class="separador"><time><span class="dia">PASO 13</span> · Cierre</time></div>
+    <div class="mensaje asistente">
+      <h4 class="rol">ChatGPT</h4>
+      <div class="contenido-ia">
+        <div class="cierre">
+          <h2>Prompt maestro · versión 1.0</h2>
+          <blockquote><p><strong>Madre se construye por capas, por fases y con controles editoriales en cada paso.</strong></p></blockquote>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PASO 14 · Versionado editorial -->
+  <section class="turno">
+    <div class="separador"><time><span class="dia">PASO 14</span> · Versionado editorial</time></div>
+    <div class="mensaje asistente">
+      <h4 class="rol">ChatGPT</h4>
+      <div class="contenido-ia">
+        <h2>PASO 14 — Versionado editorial</h2>
+        <p>Tabla <code>editorial_versions</code> con instantánea, motivo, autor y fecha. Restaurar genera nueva versión sin borrar historial.</p>
+        <div class="badge success">PASO 14 incorporado</div>
+        <div class="metricas">
+          <div class="metrica"><span class="label">Unidades sin versión inicial</span><span class="valor">0</span></div>
+          <div class="metrica"><span class="label">Versiones iniciales registradas</span><span class="valor">2</span></div>
+          <div class="metrica"><span class="label">Triggers de versionado e inmutabilidad</span><span class="valor">2</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PASO 15 · Producción de los 6 formatos -->
+  <section class="turno">
+    <div class="separador"><time><span class="dia">PASO 15</span> · Producción de los seis formatos</time></div>
+    <div class="mensaje asistente">
+      <h4 class="rol">ChatGPT</h4>
+      <div class="contenido-ia">
+        <h2>PASO 15 — Producción de los seis formatos</h2>
+        <p>Identificadores oficiales: <code>web_seo</code>, <code>video_reel_60</code>, <code>podcast_primera_hora</code>, <code>instagram_carousel_8</code>, <code>newsletter</code>, <code>whatsapp</code>.</p>
+        <div class="badge success">PASO 15 implementado en Supabase y GitHub</div>
+        <div class="diagrama-version">
+          <div class="dv-box">Contenido madre · Versión 1</div>
+          <div class="dv-arrow">↓</div>
+          <div class="dv-grid">
+            <div class="dv-item"><p class="dv-nombre">Web</p><span class="badge success">Vinculado</span></div>
+            <div class="dv-item"><p class="dv-nombre">Reel</p><span class="badge success">Vinculado</span></div>
+            <div class="dv-item"><p class="dv-nombre">Podcast</p><span class="badge success">Vinculado</span></div>
+            <div class="dv-item"><p class="dv-nombre">Carrusel</p><span class="badge success">Vinculado</span></div>
+            <div class="dv-item"><p class="dv-nombre">Newsletter</p><span class="badge success">Vinculado</span></div>
+            <div class="dv-item"><p class="dv-nombre">WhatsApp</p><span class="badge success">Vinculado</span></div>
+          </div>
+          <div class="dv-alerta">Nueva versión del contenido madre → formatos anteriores desactualizados</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PASO 16 · Generación IA -->
+  <section class="turno">
+    <div class="separador"><time><span class="dia">PASO 16</span> · Generación editorial asistida por IA</time></div>
+    <div class="mensaje asistente">
+      <h4 class="rol">ChatGPT</h4>
+      <div class="contenido-ia">
+        <h2>PASO 16 — Generación editorial asistida por IA</h2>
+        <p>Edge Function <code>generate-editorial-format</code> v4 con <code>verify_jwt=true</code>. Contexto periodístico completo, seis instrucciones específicas por formato, trazabilidad y control editorial.</p>
+        <div class="badge success">PASO 16 desplegado</div>
+        <p>Integración vía <strong>Responses API de OpenAI</strong>. <span class="pill-openai">OpenAI API</span></p>
+        <div class="badge warning">Configuración pendiente</div>
+        <p>Falta confirmar el secreto <code>OPENAI_API_KEY</code> en Supabase → Edge Functions → Secrets.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PASO 17 · Control de calidad -->
+  <section class="turno">
+    <div class="separador"><time><span class="dia">PASO 17</span> · Control de calidad editorial</time></div>
+    <div class="mensaje asistente">
+      <h4 class="rol">ChatGPT</h4>
+      <div class="contenido-ia">
+        <h2>PASO 17 — Control de calidad editorial</h2>
+        <p>Instancia previa a la revisión humana. Alertas para revisar, no dictámenes de verdad o falsedad.</p>
+        <div class="badge success">PASO 17 implementado</div>
+        <p>Tablas <code>editorial_quality_reviews</code> y <code>editorial_quality_observations</code>. RLS activo, historial append-only, sin acceso anónimo.</p>
+        <div class="caja-verif">
+          <div class="fila"><span class="lbl">Tablas creadas</span><span class="badge success">2 verificadas</span></div>
+          <div class="fila"><span class="lbl">Políticas RLS</span><span class="badge success">4 activas</span></div>
+          <div class="fila"><span class="lbl">Índices</span><span class="badge success">6 incorporados</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PASO 18 · Revisión y aprobación -->
+  <section class="turno">
+    <div class="separador"><time><span class="dia">PASO 18</span> · Revisión y aprobación editorial</time></div>
+    <div class="mensaje asistente">
+      <h4 class="rol">ChatGPT</h4>
+      <div class="contenido-ia">
+        <h2>PASO 18 — Revisión y aprobación editorial</h2>
+        <p>Solicitud → devolución → reenvío → aprobación → publicación, con registro humano en cada paso.</p>
+        <div class="badge success">PASO 18 implementado y desplegado</div>
+        <p>✅ <strong>Prueba transaccional completada</strong> con <code>ROLLBACK</code> final.</p>
+        <p><strong>Pendiente:</strong> solo existe usuario <code>admin</code>; faltan perfiles <code>reviewer</code> y <code>editor</code>.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PASO 19 · Bandeja operativa -->
+  <section class="turno">
+    <div class="separador"><time><span class="dia">PASO 19</span> · Bandeja operativa editorial</time></div>
+    <div class="mensaje asistente">
+      <h4 class="rol">ChatGPT</h4>
+      <div class="contenido-ia">
+        <div class="badge success">PASO 19 completado y desplegado</div>
+        <div class="grid-bandeja">
+          <div class="b-item"><span class="b-icon">📥</span><div class="b-body"><p class="b-titulo">Bandeja de trabajo</p><p class="b-desc">Filtros por todas, mi trabajo, pendientes, vencidas y sin asignar.</p></div></div>
+          <div class="b-item"><span class="b-icon">👥</span><div class="b-body"><p class="b-titulo">Asignación de responsables</p><p class="b-desc">Editor/admin asignan; asignados trabajan sus borradores.</p></div></div>
+          <div class="b-item"><span class="b-icon">📋</span><div class="b-body"><p class="b-titulo">Prioridades y vencimientos</p><p class="b-desc">Baja, normal, alta, urgente. Fecha límite y detección de vencidas.</p></div></div>
+          <div class="b-item"><span class="b-icon">🕓</span><div class="b-body"><p class="b-titulo">Historial de planificación</p><p class="b-desc">Registro inmutable de cambios con autor, fecha y motivo.</p></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PASO 20 · Notificaciones -->
+  <section class="turno">
+    <div class="separador"><time><span class="dia">PASO 20</span> · Sistema de notificaciones editoriales</time></div>
+    <div class="mensaje asistente">
+      <h4 class="rol">ChatGPT</h4>
+      <div class="contenido-ia">
+        <h1>PASO 20 — SISTEMA DE NOTIFICACIONES EDITORIALES DE MADRE</h1>
+        <p style="display:flex;flex-wrap:wrap;gap:8px;">
+          <span class="badge success">Nueva etapa de desarrollo</span>
+          <span class="badge info">Continuidad del PASO 19</span>
+        </p>
+        <p>El objetivo es convertir a Madre en un sistema de trabajo editorial activo: cada integrante debe recibir avisos oportunos cuando se le asigna una tarea, cuando una producción requiere su intervención o cuando cambia el estado de una unidad editorial.</p>
+        <p>La notificación debe permitir identificar qué ocurrió, quién intervino, qué acción se necesita y a qué unidad editorial corresponde.</p>
+        <p><strong>Principio rector: ninguna tarea editorial importante debe quedar dependiendo de que alguien entre manualmente a revisar la bandeja.</strong></p>
+        <p>La implementación respeta la arquitectura existente: JavaScript modular, Supabase, Auth, RLS, historial y permisos por roles.</p>
+        <div class="aviso-corte">
+          La fuente original se corta aquí, después del principio rector. A continuación aparecen únicamente indicadores de actividad del asistente. El detalle técnico completo (tablas, políticas, archivos, verificaciones) quedó fuera de la fuente disponible.
+        </div>
+        <div class="actividad-corte">
+          <p style="margin:0 0 8px;font-weight:600;color:#555;">Actividad registrada después de la introducción:</p>
+          <div class="act-line"><span class="act-dot"></span> Implementado el sistema de notificaciones editoriales del paso 20</div>
+          <div class="act-line"><span class="act-dot"></span> Diseñó notificaciones editoriales</div>
+          <div class="act-line"><span class="act-dot"></span> Ajustados estilos y permisos</div>
+          <div class="act-line"><span class="act-dot"></span> Implementaste notificaciones editoriales seguras con migración, servicio, UI y estilos</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PASO 21 · Dashboard -->
+  <section class="turno">
+    <div class="separador"><time><span class="dia">PASO 21</span> · Dashboard de Gestión Editorial</time></div>
+    <div class="mensaje asistente">
+      <h4 class="rol">ChatGPT</h4>
+      <div class="contenido-ia">
+        <div class="badge success">PASO 21 incorporado al repositorio</div>
+        <div class="grid-num">
+          <div class="item"><p class="num">01</p><p class="titulo">Indicadores operativos</p><p class="desc">Producción, revisiones, vencimientos, revisadas y publicadas.</p></div>
+          <div class="item"><p class="num">02</p><p class="titulo">Carga del equipo</p><p class="desc">Unidades en borrador por responsable.</p></div>
+          <div class="item"><p class="num">03</p><p class="titulo">Actividad reciente</p><p class="desc">Eventos de planificación y revisión durante 14 días.</p></div>
+          <div class="item"><p class="num">04</p><p class="titulo">Seguimiento</p><p class="desc">Acceso a unidades vencidas o pendientes de revisión.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       PROMPT MAESTRO DE DESARROLLO E IMPLEMENTACIÓN
+       Documento rector final
+       ========================================================= -->
+  <section class="turno">
+    <div class="separador"><time><span class="dia">DOCUMENTO RECTOR</span> · Prompt Maestro de Desarrollo</time></div>
+
+    <div class="prompt-maestro-bloque">
+
+      <div class="prompt-portada">
+        <h1>PROMPT MAESTRO DE DESARROLLO E IMPLEMENTACIÓN</h1>
+        <h2>MADRE — Ecosistema Editorial Inteligente</h2>
+        <div class="badges">
+          <span class="badge success">Documento rector de desarrollo</span>
+          <span class="badge info">Proyecto desde cero</span>
+        </div>
+      </div>
+
+      <p>Este prompt está concebido para iniciar el proyecto desde cero. La instrucción al agente no es analizar un sistema existente ni limitarse a diseñar una propuesta: debe <strong>arquitecturar, programar, integrar, probar y entregar una aplicación web funcional</strong>.</p>
+
+      <p>Incorpora la arquitectura, los once pasos de diseño, el Plan Maestro, los seis formatos editoriales y la Guía de Estilo Editorial de referencia.</p>
+
+      <!-- 1 -->
+      <div class="prompt-seccion">
+        <h2>1. ROL DEL AGENTE Y MISIÓN</h2>
+        <p>Actúa como un equipo interdisciplinario de desarrollo tecnológico integrado por:</p>
+        <ul>
+          <li>Arquitecto de Software Senior.</li>
+          <li>Ingeniero Full Stack Senior.</li>
+          <li>Especialista en JavaScript y aplicaciones SPA.</li>
+          <li>Especialista en Supabase, PostgreSQL y seguridad.</li>
+          <li>Ingeniero de Inteligencia Artificial y sistemas RAG.</li>
+          <li>Especialista en UX/UI y accesibilidad WCAG.</li>
+          <li>Especialista en procesamiento documental y transcripción.</li>
+          <li>Ingeniero de datos y visualización de información.</li>
+          <li>Especialista en SEO y tecnologías para medios digitales.</li>
+          <li>Especialista en QA, pruebas automatizadas y despliegue.</li>
+        </ul>
+        <p>Tu misión es <strong>desarrollar e implementar desde cero MADRE</strong>, un ecosistema editorial inteligente, modular, escalable y preparado para producción.</p>
+        <p>No debes limitarte a producir un documento de arquitectura, una maqueta, un prototipo visual o fragmentos de código. Debes construir una aplicación web funcional, implementar su backend, diseñar su base de datos, desarrollar sus módulos, integrar los servicios necesarios, ejecutar pruebas y documentar los resultados. Debes trabajar progresivamente, pero con visión integral del producto. La prioridad es entregar funcionalidades reales, conectadas entre sí y verificables.</p>
+      </div>
+
+      <!-- 2 -->
+      <div class="prompt-seccion">
+        <h2>2. DEFINICIÓN DEL PRODUCTO</h2>
+        <p>MADRE es un sistema web editorial inteligente que transforma información, documentos, fuentes, hechos, audios y datos en conocimiento periodístico verificable y posteriormente lo atomiza en múltiples formatos de comunicación, manteniendo trazabilidad, control editorial humano, memoria documental y capacidad de publicación multicanal.</p>
+        <p>MADRE no es un generador de textos con inteligencia artificial. Es un ecosistema de trabajo editorial que integra:</p>
+        <ol>
+          <li>Ingesta de información.</li>
+          <li>Organización y clasificación.</li>
+          <li>Investigación.</li>
+          <li>Recuperación de antecedentes.</li>
+          <li>Contextualización.</li>
+          <li>Contraste de fuentes.</li>
+          <li>Verificación de afirmaciones.</li>
+          <li>Construcción de una Unidad Editorial Madre.</li>
+          <li>Generación de contenidos multiplataforma.</li>
+          <li>Revisión editorial humana.</li>
+          <li>Distribución multicanal.</li>
+          <li>Memoria documental.</li>
+          <li>Observatorios de información económica, territorial y de audiencias.</li>
+        </ol>
+        <blockquote>
+          <p><strong>Principio rector:</strong> La IA es un componente de MADRE. No es MADRE. La inteligencia artificial asiste en las tareas de investigación, organización, análisis, redacción y edición. No reemplaza la verificación profesional, la responsabilidad editorial ni la autorización humana.</p>
+        </blockquote>
+      </div>
+
+      <!-- 3 -->
+      <div class="prompt-seccion">
+        <h2>3. OBJETIVO GENERAL</h2>
+        <p>Construir una plataforma editorial que permita ingresar una noticia, documento, investigación, entrevista, comunicado, dato o tema de interés público y desarrollar un proceso integral que transforme esa información en una producción periodística documentada, verificable y reutilizable.</p>
+        <p>El sistema debe permitir:</p>
+        <ul>
+          <li>Trabajar con una entrada o múltiples fuentes.</li>
+          <li>Conservar el material original.</li>
+          <li>Identificar hechos, afirmaciones, opiniones e interpretaciones.</li>
+          <li>Buscar información complementaria.</li>
+          <li>Recuperar documentos históricos.</li>
+          <li>Identificar contradicciones y vacíos.</li>
+          <li>Relacionar afirmaciones con evidencias.</li>
+          <li>Generar una Unidad Editorial Madre.</li>
+          <li>Producir exactamente seis formatos.</li>
+          <li>Editar y versionar cada formato.</li>
+          <li>Ejecutar controles editoriales.</li>
+          <li>Aprobar mediante intervención humana.</li>
+          <li>Preparar publicaciones para distintos canales.</li>
+          <li>Conservar la memoria y trazabilidad de todo el proceso.</li>
+        </ul>
+      </div>
+
+      <!-- 4 -->
+      <div class="prompt-seccion">
+        <h2>4. PRINCIPIOS NO NEGOCIABLES</h2>
+        <p>El desarrollo debe respetar las siguientes reglas:</p>
+        <ol>
+          <li>No inventar información, fuentes, citas, datos ni documentos.</li>
+          <li>No presentar interpretaciones como hechos.</li>
+          <li>No confundir una declaración con la comprobación de lo declarado.</li>
+          <li>No confundir una fuente recuperada con una fuente verificada.</li>
+          <li>No ocultar contradicciones.</li>
+          <li>No eliminar automáticamente las dudas.</li>
+          <li>No completar vacíos informativos mediante suposiciones.</li>
+          <li>No generar afirmaciones nuevas sin respaldo.</li>
+          <li>No publicar contenidos por decisión autónoma de la IA.</li>
+          <li>No permitir que la regeneración automática destruya ediciones humanas.</li>
+          <li>No exponer claves de proveedores en el frontend.</li>
+          <li>No utilizar datos simulados como si fueran información real.</li>
+          <li>No considerar terminada una integración que no fue probada.</li>
+          <li>No implementar controles de seguridad exclusivamente en la interfaz.</li>
+          <li>No alterar silenciosamente documentos, fuentes o versiones originales.</li>
+        </ol>
+        <p><strong>Principio fundamental:</strong> MADRE NUNCA DEBE CONFUNDIR LO QUE RECIBE CON LO QUE SABE.</p>
+      </div>
+
+      <!-- 5 -->
+      <div class="prompt-seccion">
+        <h2>5. ARQUITECTURA GENERAL DEL ECOSISTEMA</h2>
+        <p>Construir una aplicación SPA modular con navegación centralizada y módulos independientes que compartan servicios, autenticación, base de datos, memoria y reglas editoriales. La arquitectura se organiza en cuatro capas.</p>
+
+        <h3>5.1. Capa de presentación</h3>
+        <p>Shell principal con navegación y módulos:</p>
+        <ul>
+          <li>Inicio / Dashboard.</li>
+          <li>Madre Editorial.</li>
+          <li>Biblioteca Riojana.</li>
+          <li>Editor Crítico.</li>
+          <li>Transcripción.</li>
+          <li>Observatorio Económico.</li>
+          <li>Observatorio Territorial.</li>
+          <li>Observatorio de Audiencias.</li>
+          <li>Distribución.</li>
+          <li>Administración.</li>
+        </ul>
+        <p>Cada módulo debe tener una interfaz funcional y adaptarse a dispositivos móviles.</p>
+
+        <h3>5.2. Núcleo compartido</h3>
+        <p>Crear servicios reutilizables para: configuración general, cliente Supabase, autenticación, perfiles y permisos, comunicación con IA, persistencia, gestión de archivos, guía de estilo, notificaciones, auditoría, manejo de errores, versionado y componentes visuales comunes.</p>
+        <p>Los módulos no deben duplicar estas funcionalidades.</p>
+
+        <h3>5.3. Backend</h3>
+        <p>Utilizar Supabase como infraestructura principal: Auth, PostgreSQL, Row Level Security, Storage, Edge Functions, pgvector, sistema de migraciones e integraciones externas.</p>
+
+        <h3>5.4. Capa de datos y memoria</h3>
+        <p>Organizar los datos de: unidades editoriales, hechos y afirmaciones, fuentes y evidencias, documentos y archivos, versiones, revisiones, Biblioteca Riojana, indicadores y observaciones, distribuciones, usuarios, roles y auditoría.</p>
+      </div>
+
+      <!-- 6 -->
+      <div class="prompt-seccion">
+        <h2>6. TECNOLOGÍAS Y ESTÁNDARES</h2>
+        <h3>Frontend</h3>
+        <ul>
+          <li>HTML5.</li>
+          <li>CSS moderno.</li>
+          <li>JavaScript ES Modules.</li>
+          <li>SPA modular.</li>
+          <li>Tailwind CSS compilado.</li>
+          <li>Componentes reutilizables.</li>
+          <li>Navegación mediante rutas.</li>
+          <li>Diseño responsive y mobile-first.</li>
+        </ul>
+        <h3>Backend</h3>
+        <ul>
+          <li>Supabase.</li>
+          <li>PostgreSQL.</li>
+          <li>Supabase Auth.</li>
+          <li>RLS.</li>
+          <li>Storage.</li>
+          <li>Edge Functions en TypeScript.</li>
+          <li>pgvector.</li>
+        </ul>
+        <h3>Inteligencia artificial</h3>
+        <ul>
+          <li>Proveedor de IA intercambiable.</li>
+          <li>Integración mediante proxy seguro.</li>
+          <li>Respuestas estructuradas.</li>
+          <li>JSON Schema.</li>
+          <li>Validación de respuestas.</li>
+          <li>Control de errores, límites y reintentos.</li>
+        </ul>
+        <h3>Tipografías</h3>
+        <ul>
+          <li>Playfair Display para títulos editoriales.</li>
+          <li>Inter para interfaces y contenido general.</li>
+        </ul>
+        <h3>Calidad</h3>
+        <ul>
+          <li>WCAG AA.</li>
+          <li>Buenas prácticas de rendimiento.</li>
+          <li>Código modular.</li>
+          <li>Separación de responsabilidades.</li>
+          <li>Seguridad por diseño.</li>
+          <li>Documentación técnica.</li>
+          <li>Pruebas automatizadas.</li>
+        </ul>
+        <p>No introducir dependencias pesadas sin justificación técnica. Antes de elegir versiones concretas, comprobar compatibilidad, mantenimiento y documentación oficial vigente.</p>
+      </div>
+
+      <!-- 7 -->
+      <div class="prompt-seccion">
+        <h2>7. IDENTIDAD VISUAL Y EXPERIENCIA DE USUARIO</h2>
+        <p>Diseñar una interfaz editorial minimalista basada en:</p>
+        <ul>
+          <li>Blanco.</li>
+          <li>Negro.</li>
+          <li>Escala de grises.</li>
+          <li>Jerarquías tipográficas claras.</li>
+          <li>Espacios amplios.</li>
+          <li>Composición ordenada.</li>
+          <li>Lectura cómoda.</li>
+          <li>Navegación sencilla.</li>
+          <li>Interacciones discretas.</li>
+        </ul>
+        <p>Evitar interfaces recargadas, exceso de tarjetas, colores innecesarios y paneles de información redundantes. La experiencia debe ser profesional, contemporánea, institucional y orientada al trabajo editorial.</p>
+        <h3>7.1. Principios UX</h3>
+        <ul>
+          <li>Mobile-first.</li>
+          <li>Navegación consistente.</li>
+          <li>Accesibilidad WCAG AA.</li>
+          <li>Estados de carga.</li>
+          <li>Estados vacíos.</li>
+          <li>Mensajes de error comprensibles.</li>
+          <li>Confirmación de operaciones sensibles.</li>
+          <li>Guardado automático cuando corresponda.</li>
+          <li>Recuperación de borradores.</li>
+          <li>Detección de conflictos de edición.</li>
+          <li>Indicadores claros de estado editorial.</li>
+        </ul>
+        <p>El usuario debe poder identificar en todo momento: qué está haciendo el sistema, qué información está procesando, qué datos están verificados, qué información está pendiente y qué acciones requieren su autorización.</p>
+      </div>
+
+      <!-- 8 -->
+      <div class="prompt-seccion">
+        <h2>8. MÓDULO PRINCIPAL: MADRE EDITORIAL</h2>
+        <p>Es el corazón del sistema. Debe permitir ingresar información desde distintas fuentes:</p>
+        <ul>
+          <li>Texto libre.</li>
+          <li>Hechos o titulares.</li>
+          <li>Comunicados.</li>
+          <li>Documentos PDF, DOC, DOCX, TXT.</li>
+          <li>URL.</li>
+          <li>Entrevistas.</li>
+          <li>Archivos de audio.</li>
+          <li>Investigaciones.</li>
+          <li>Datos estadísticos.</li>
+          <li>Múltiples documentos.</li>
+          <li>Conjuntos de fuentes.</li>
+          <li>Temas e ideas para investigar.</li>
+        </ul>
+
+        <h3>8.1. Ingesta</h3>
+        <p>Al recibir información:</p>
+        <ol>
+          <li>Conservar el original.</li>
+          <li>Registrar origen, fecha y usuario.</li>
+          <li>Extraer el texto cuando corresponda.</li>
+          <li>Clasificar el material.</li>
+          <li>Identificar entidades, actores, fechas y lugares.</li>
+          <li>Extraer afirmaciones.</li>
+          <li>Diferenciar hechos, declaraciones, opiniones e hipótesis.</li>
+          <li>Detectar datos faltantes.</li>
+          <li>Identificar preguntas que requieren investigación.</li>
+        </ol>
+
+        <h3>8.2. Normalización</h3>
+        <p>Transformar las entradas en información estructurada sin alterar su significado. Cada elemento debe poder clasificarse como: Hecho, Afirmación, Declaración, Opinión, Interpretación, Dato estadístico, Hipótesis, Cita textual, Pregunta pendiente, Evidencia, Fuente.</p>
+
+        <h3>8.3. Investigación</h3>
+        <p>El sistema debe disponer de herramientas para:</p>
+        <ul>
+          <li>Consultar fuentes web.</li>
+          <li>Recuperar documentos.</li>
+          <li>Buscar antecedentes en Biblioteca Riojana.</li>
+          <li>Identificar información complementaria.</li>
+          <li>Comparar versiones.</li>
+          <li>Buscar datos relacionados.</li>
+          <li>Registrar referencias y enlaces.</li>
+          <li>Identificar contradicciones.</li>
+        </ul>
+        <p>Toda investigación debe conservar la referencia de origen y la fecha de consulta. No simular búsquedas ni afirmar que se consultó una fuente cuando no hubo acceso efectivo.</p>
+
+        <h3>8.4. Verificación</h3>
+        <p>Implementar estados de verificación:</p>
+        <div class="estados">
+          <span class="estado publicada">[VERIFICADO]</span>
+          <span class="estado revisada">[ATRIBUIDO]</span>
+          <span class="estado verificacion">[NO VERIFICADO]</span>
+          <span class="estado corregida">[CONTRADICTORIO]</span>
+          <span class="estado borrador">[FALTA FUENTE]</span>
+        </div>
+        <p>Cada afirmación debe tener: texto, tipo, fuente relacionada, evidencia disponible, fecha, estado, observaciones y responsable de revisión.</p>
+        <p>La jerarquía de fuentes debe orientar la investigación, pero ninguna categoría garantiza por sí sola la verdad. Distinguir siempre: la existencia de una declaración, la autenticidad de un documento, la veracidad de lo declarado y la interpretación periodística de la información.</p>
+        <p>Una afirmación marcada <code>[VERIFICAR]</code> debe impedir que el contenido pase a Revisado.</p>
+      </div>
+
+      <!-- 9 -->
+      <div class="prompt-seccion">
+        <h2>9. UNIDAD EDITORIAL MADRE</h2>
+        <p>Construir un objeto central que reúna toda la información de una producción:</p>
+        <p><strong>UNIDAD EDITORIAL MADRE</strong></p>
+        <ul>
+          <li>Identidad.</li>
+          <li>Título.</li>
+          <li>Tipo de producción.</li>
+          <li>Fecha de creación.</li>
+          <li>Fecha de actualización.</li>
+          <li>Autor.</li>
+          <li>Responsable editorial.</li>
+          <li>Estado.</li>
+          <li>Versión.</li>
+          <li>Hecho central.</li>
+          <li>Hechos relacionados.</li>
+          <li>Afirmaciones.</li>
+          <li>Actores.</li>
+          <li>Fuentes.</li>
+          <li>Evidencias.</li>
+          <li>Contexto.</li>
+          <li>Antecedentes.</li>
+          <li>Datos.</li>
+          <li>Contradicciones.</li>
+          <li>Preguntas pendientes.</li>
+          <li>Contenido Madre.</li>
+          <li>Verificación.</li>
+          <li>Checklist.</li>
+          <li>Metadatos SEO.</li>
+          <li>Territorio.</li>
+          <li>Observatorios relacionados.</li>
+          <li>Seis formatos.</li>
+          <li>Revisiones.</li>
+          <li>Historial.</li>
+          <li>Trazabilidad.</li>
+        </ul>
+        <p>La Unidad Editorial debe ser la fuente común de todos los formatos derivados. Cada formato debe conservar su relación con la Unidad Editorial y con la versión que le dio origen.</p>
+      </div>
+
+      <!-- 10 -->
+      <div class="prompt-seccion">
+        <h2>10. ATOMIZACIÓN: EXACTAMENTE SEIS FORMATOS</h2>
+        <p>El sistema debe producir seis formatos multiplataforma. No agregar formatos adicionales al alcance inicial. Todos deben derivar de la misma Unidad Editorial Madre.</p>
+
+        <h3>FORMATO 1. ARTÍCULO WEB / SEO</h3>
+        <p>Generar: título, bajada, introducción, desarrollo periodístico, subtítulos, contexto, datos, declaraciones atribuidas, conclusión o cierre, fuentes, slug, meta descripción, palabras clave, etiquetas, categoría y datos estructurados Schema.org cuando correspondan. Aplicar la estructura periodística adecuada al género. La noticia informativa debe priorizar la información central mediante pirámide invertida.</p>
+
+        <h3>FORMATO 2. GUION DE VIDEO / REEL DE 60 SEGUNDOS</h3>
+        <p>Generar guion temporalizado: 0–5 s apertura; 5–15 s hecho central; 15–35 s explicación; 35–50 s contexto y datos; 50–60 s cierre y CTA. Incluir locución, texto en pantalla, indicaciones visuales, ritmo, recursos sugeridos y CTA. No inventar imágenes documentales ni declaraciones.</p>
+
+        <h3>FORMATO 3. PODCAST «PRIMERA HORA»</h3>
+        <p>Generar presentación, introducción, desarrollo, contextualización, datos relevantes, testimonios y declaraciones atribuidas, y cierre. Preparar guion apto para síntesis de voz. La generación de audio TTS debe ser un servicio separado del proceso de redacción. No presentar audio sintético como testimonio real.</p>
+
+        <h3>FORMATO 4. CARRUSEL DE INSTAGRAM</h3>
+        <p>Generar exactamente ocho diapositivas:</p>
+        <ol>
+          <li>Portada.</li>
+          <li>Hecho central.</li>
+          <li>Actores involucrados.</li>
+          <li>Dato relevante.</li>
+          <li>Contexto.</li>
+          <li>Explicación.</li>
+          <li>Consecuencias.</li>
+          <li>Cierre o pregunta.</li>
+        </ol>
+        <p>Cada diapositiva debe contener número, título, texto, indicación visual y fuente cuando corresponda.</p>
+
+        <h3>FORMATO 5. NEWSLETTER</h3>
+        <p>Generar asunto, preencabezado, título, introducción, síntesis, datos relevantes, enlace al artículo y cierre. Legible, directo y apto para correo electrónico.</p>
+
+        <h3>FORMATO 6. WHATSAPP</h3>
+        <p>Mensaje de difusión con apertura atractiva, información central, contexto mínimo, lenguaje claro y enlace cuando corresponda. Evitar exageraciones, clickbait y pérdida del sentido original.</p>
+
+        <h3>10.1. Reglas comunes de atomización</h3>
+        <ul>
+          <li>Los seis formatos deben compartir los mismos hechos y evidencias.</li>
+          <li>Las declaraciones deben mantener su atribución.</li>
+          <li>Las incertidumbres deben conservarse.</li>
+          <li>Las advertencias no deben desaparecer.</li>
+          <li>Ningún formato puede inventar información.</li>
+          <li>Cada formato debe poder editarse individualmente.</li>
+          <li>Cada versión debe conservar su historial.</li>
+          <li>Los cambios en el núcleo deben marcar las salidas potencialmente desactualizadas.</li>
+          <li>La regeneración nunca debe sobrescribir silenciosamente ediciones humanas.</li>
+        </ul>
+      </div>
+
+      <!-- 11 -->
+      <div class="prompt-seccion">
+        <h2>11. MOTOR DE IA Y ARQUITECTURA DE SEGURIDAD</h2>
+        <p>Implementar un servicio centralizado de IA.</p>
+        <div class="flujo">
+          <p><strong>MÓDULOS FRONTEND → SERVICIO callIA() → SUPABASE EDGE FUNCTION → PROVEEDOR DE IA → VALIDACIÓN DE RESPUESTA → APLICACIÓN</strong></p>
+        </div>
+        <p>Crear una Edge Function de proxy, por ejemplo <code>ia-proxy</code>. Debe: verificar autenticación, validar permisos, validar entradas, aplicar límites de uso, administrar claves secretas, controlar errores, validar respuestas, registrar operaciones relevantes y devolver respuestas estructuradas.</p>
+        <p>Nunca colocar API Keys en HTML, JavaScript público, localStorage, archivos descargables o repositorios públicos. Las credenciales deben almacenarse como secretos del entorno backend.</p>
+        <p>Diseñar el servicio para que el proveedor de IA pueda cambiarse sin reconstruir todos los módulos.</p>
+
+        <h3>11.1. Respuestas estructuradas</h3>
+        <p>Utilizar JSON Schema para definir y validar las salidas. Cada función de IA debe tener: entrada documentada, salida esperada, esquema de validación, manejo de errores, control de tokens o consumo, registro de ejecución y política de reintentos. No aceptar como respuesta válida un JSON incompleto o incompatible con el esquema.</p>
+
+        <h3>11.2. Investigación asistida</h3>
+        <p>La IA debe distinguir entre: información recibida, información recuperada, información declarada, información corroborada, información inferida e información desconocida. No debe completar datos faltantes mediante invenciones.</p>
+      </div>
+
+      <!-- 12 -->
+      <div class="prompt-seccion">
+        <h2>12. EDITOR CRÍTICO</h2>
+        <p>Desarrollar una segunda instancia de análisis asistido por IA. Su función es revisar las producciones y advertir:</p>
+        <ul>
+          <li>Sesgos.</li>
+          <li>Contradicciones.</li>
+          <li>Problemas de atribución.</li>
+          <li>Afirmaciones sin respaldo.</li>
+          <li>Datos incorrectos o inconsistentes.</li>
+          <li>Errores de nombres y fechas.</li>
+          <li>Problemas de claridad.</li>
+          <li>Repeticiones.</li>
+          <li>Lenguaje discriminatorio o estigmatizante.</li>
+          <li>Posibles riesgos jurídicos.</li>
+          <li>Omisiones relevantes.</li>
+          <li>Descontextualización de citas.</li>
+        </ul>
+        <p>Cada observación debe incluir: fragmento observado, tipo de problema, justificación, gravedad estimada, evidencia relacionada y recomendación.</p>
+        <p>El Editor Crítico no debe modificar, aprobar ni publicar silenciosamente. Debe ofrecer sugerencias para que el responsable humano decida.</p>
+      </div>
+
+      <!-- 13 -->
+      <div class="prompt-seccion">
+        <h2>13. BIBLIOTECA RIOJANA</h2>
+        <p>Construir un sistema de memoria documental activa. No debe ser una simple carpeta de archivos. Debe permitir:</p>
+        <ul>
+          <li>Crear fichas documentales.</li>
+          <li>Incorporar documentos.</li>
+          <li>Registrar fuentes.</li>
+          <li>Clasificar contenidos.</li>
+          <li>Relacionar fichas.</li>
+          <li>Buscar antecedentes.</li>
+          <li>Recuperar producciones anteriores.</li>
+          <li>Consultar versiones.</li>
+          <li>Identificar documentos relacionados.</li>
+          <li>Generar borradores asistidos por IA.</li>
+          <li>Exportar información.</li>
+        </ul>
+
+        <h3>13.1. Estructura de ficha</h3>
+        <p>ID, título, categoría, departamento, localidad, fecha de incorporación, fecha del hecho, fecha de publicación original, resumen, contenido atemporal, fuentes, archivos, estado, responsable, checklist, relaciones e historial.</p>
+
+        <h3>13.2. Búsqueda</h3>
+        <p>Implementar: búsqueda textual, filtros, búsqueda por categorías, búsqueda territorial, búsqueda por fechas y búsqueda semántica mediante embeddings y pgvector. La similitud semántica permite recuperar antecedentes, pero no constituye evidencia de veracidad.</p>
+
+        <h3>13.3. Estados</h3>
+        <div class="estados">
+          <span class="estado borrador">Borrador</span>
+          <span class="estado revisada">Revisado</span>
+          <span class="estado publicada">Publicado</span>
+          <span class="estado archivada">Archivado</span>
+        </div>
+        <p>Para pasar a Revisado se requiere título, contenido, checklist completa y ausencia de marcas <code>[VERIFICAR]</code>. Para publicar se requiere autorización del rol correspondiente.</p>
+      </div>
+
+      <!-- 14 -->
+      <div class="prompt-seccion">
+        <h2>14. TRANSCRIPCIÓN DE AUDIO</h2>
+        <p>Desarrollar un módulo de transcripción para entrevistas, conferencias, testimonios, audios de trabajo y registros periodísticos. Debe permitir:</p>
+        <ul>
+          <li>Cargar audio.</li>
+          <li>Conservar archivo original.</li>
+          <li>Procesar el audio.</li>
+          <li>Obtener transcripción.</li>
+          <li>Corregir texto.</li>
+          <li>Identificar segmentos dudosos.</li>
+          <li>Asociar marcas temporales cuando estén disponibles.</li>
+          <li>Relacionar transcripción con Unidad Editorial Madre.</li>
+        </ul>
+        <p>La transcripción automática debe identificarse como no verificada hasta su revisión. No completar palabras inaudibles ni inventar declaraciones.</p>
+      </div>
+
+      <!-- 15 -->
+      <div class="prompt-seccion">
+        <h2>15. OBSERVATORIOS</h2>
+        <p>Construir tres observatorios conectados con la memoria y la producción editorial.</p>
+
+        <h3>15.1. Observatorio Económico</h3>
+        <p>Orientado a organizar información sobre: empleo, desocupación, ingresos, salarios, precios, producción, consumo, inversión, actividad económica, finanzas públicas y desarrollo productivo.</p>
+
+        <h3>15.2. Observatorio Territorial</h3>
+        <p>Orientado a organizar información sobre: población, vivienda, servicios, agua, energía, conectividad, educación, salud, infraestructura, transporte, desigualdad y condiciones territoriales.</p>
+
+        <h3>15.3. Observatorio de Audiencias</h3>
+        <p>Orientado a organizar: visitas, lecturas, tiempo de permanencia, tráfico, distribución por canales, interacciones, suscripciones, aperturas de newsletter, rendimiento de contenidos y consultas. No confundir métricas digitales con representatividad de la opinión pública.</p>
+
+        <h3>15.4. Modelo metodológico</h3>
+        <p>Cada indicador debe conservar: nombre, definición, fórmula, unidad, período, frecuencia, territorio, fuente, metodología, fecha de actualización, vigencia, responsable y calidad del dato.</p>
+        <p>Distinguir: dato original, variable, indicador, observación, serie temporal, interpretación y producción editorial.</p>
+
+        <h3>15.5. Territorio</h3>
+        <p>La Rioja debe ser una unidad de análisis central. Permitir organizar información por: Argentina, Norte Grande, Provincia de La Rioja, Departamentos, Localidades y Barrios. Las escalas deben ser comparables cuando las fuentes y metodologías lo permitan. No inventar datos territoriales.</p>
+      </div>
+
+      <!-- 16 -->
+      <div class="prompt-seccion">
+        <h2>16. FLUJO EDITORIAL Y CONTROL HUMANO</h2>
+        <p>Implementar el flujo principal:</p>
+        <div class="estados">
+          <span class="estado borrador">BORRADOR</span>
+          <span class="estado revisada">REVISADO</span>
+          <span class="estado publicada">PUBLICADO</span>
+        </div>
+        <p>El sistema puede incorporar estados internos adicionales como: En investigación, En verificación, Con observaciones, Pendiente de respuesta, Corregido, Archivado.</p>
+
+        <h3>16.1. Requisitos para Revisado</h3>
+        <ul>
+          <li>Título.</li>
+          <li>Contenido.</li>
+          <li>Checklist completa.</li>
+          <li>Sin afirmaciones pendientes marcadas <code>[VERIFICAR]</code>.</li>
+          <li>Fuentes y atribuciones registradas.</li>
+          <li>Revisión editorial realizada.</li>
+        </ul>
+
+        <h3>16.2. Requisitos para Publicado</h3>
+        <ul>
+          <li>Usuario con rol editor o administrador.</li>
+          <li>Estado Revisado.</li>
+          <li>Autorización humana explícita.</li>
+          <li>Registro de auditoría.</li>
+        </ul>
+        <p>Una modificación sustantiva posterior a la revisión debe invalidar la aprobación anterior o exigir una nueva revisión. La IA nunca puede aprobar ni publicar por sí misma.</p>
+
+        <h3>16.3. Roles</h3>
+        <p>Implementar como mínimo: Colaborador, Redactor, Revisor, Editor y Administrador. Los permisos deben estar definidos en backend y reforzados mediante RLS.</p>
+      </div>
+
+      <!-- 17 -->
+      <div class="prompt-seccion">
+        <h2>17. DISTRIBUCIÓN MULTICANAL</h2>
+        <p>Desarrollar un módulo que prepare y gestione la distribución. Canales contemplados: Sitio web / WordPress, Redes sociales, Video / Reel, Podcast, Newsletter y WhatsApp. Cada canal debe tener un estado independiente.</p>
+        <p>Estados propuestos:</p>
+        <div class="estados">
+          <span class="estado borrador">No preparado</span>
+          <span class="estado revisada">Preparado</span>
+          <span class="estado verificacion">Pendiente de autorización</span>
+          <span class="estado publicada">Autorizado</span>
+          <span class="estado corregida">Error</span>
+          <span class="estado archivada">Cancelado</span>
+        </div>
+
+        <h3>17.1. WordPress</h3>
+        <p>Implementar integración con la API REST de WordPress. Reglas obligatorias:</p>
+        <ul>
+          <li>Crear exclusivamente borradores (<code>draft</code>).</li>
+          <li>Requerir usuario autenticado.</li>
+          <li>Exigir rol editor o administrador.</li>
+          <li>Exigir estado editorial Revisado.</li>
+          <li>Verificar ausencia de <code>[VERIFICAR]</code>.</li>
+          <li>Solicitar confirmación humana.</li>
+          <li>Registrar la operación.</li>
+          <li>Conservar la respuesta del servicio.</li>
+        </ul>
+        <p>Nunca publicar directamente desde Madre. La publicación definitiva se realiza desde WordPress mediante intervención humana.</p>
+
+        <h3>17.2. Otras integraciones</h3>
+        <p>Diseñar adaptadores para futuros canales. No afirmar que redes sociales, correo electrónico, WhatsApp o TTS están conectados hasta completar sus integraciones y pruebas reales.</p>
+      </div>
+
+      <!-- 18 -->
+      <div class="prompt-seccion">
+        <h2>18. METADATOS, SEO Y ESTRUCTURACIÓN</h2>
+        <p>El sistema debe generar metadatos para cada producción:</p>
+        <ul>
+          <li>Título SEO.</li>
+          <li>Slug.</li>
+          <li>Meta descripción.</li>
+          <li>Etiquetas.</li>
+          <li>Categorías.</li>
+          <li>Entidades.</li>
+          <li>Territorio.</li>
+          <li>Tema.</li>
+          <li>Fecha.</li>
+          <li>Fuentes.</li>
+          <li>Enlaces internos.</li>
+          <li>Datos estructurados Schema.org cuando corresponda.</li>
+        </ul>
+        <p>Los metadatos deben ser coherentes con el contenido real. No incorporar palabras clave, lugares, actores o declaraciones inexistentes. Permitir relacionar etiquetas y temas con los observatorios.</p>
+      </div>
+
+      <!-- 19 -->
+      <div class="prompt-seccion">
+        <h2>19. MODELO DE DATOS Y BASE DE DATOS</h2>
+        <p>Diseñar una base relacional en PostgreSQL. Como mínimo, evaluar e implementar las siguientes entidades:</p>
+        <ul style="columns:2;column-gap:24px;">
+          <li><code>profiles</code></li>
+          <li><code>roles</code></li>
+          <li><code>permissions</code></li>
+          <li><code>editorial_units</code></li>
+          <li><code>editorial_inputs</code></li>
+          <li><code>editorial_facts</code></li>
+          <li><code>editorial_claims</code></li>
+          <li><code>sources</code></li>
+          <li><code>evidences</code></li>
+          <li><code>editorial_context</code></li>
+          <li><code>editorial_formats</code></li>
+          <li><code>editorial_versions</code></li>
+          <li><code>editorial_reviews</code></li>
+          <li><code>editorial_audit</code></li>
+          <li><code>library_records</code></li>
+          <li><code>library_relations</code></li>
+          <li><code>library_files</code></li>
+          <li><code>library_embeddings</code></li>
+          <li><code>observatories</code></li>
+          <li><code>variables</code></li>
+          <li><code>indicators</code></li>
+          <li><code>observations</code></li>
+          <li><code>data_sources</code></li>
+          <li><code>territories</code></li>
+          <li><code>methodologies</code></li>
+          <li><code>distributions</code></li>
+          <li><code>distribution_events</code></li>
+          <li><code>media_assets</code></li>
+          <li><code>integrations</code></li>
+        </ul>
+        <p>Definir: claves primarias, claves foráneas, índices, restricciones, relaciones, fechas, estados, políticas RLS, triggers y funciones SQL cuando correspondan. Evitar duplicaciones innecesarias. El diseño debe permitir crecimiento sin perder integridad.</p>
+        <p>Crear migraciones versionadas y reproducibles. No depender de cambios manuales no documentados en la base de datos.</p>
+      </div>
+
+      <!-- 20 -->
+      <div class="prompt-seccion">
+        <h2>20. PERSISTENCIA, VERSIONADO Y AUDITORÍA</h2>
+        <p>Implementar persistencia remota mediante Supabase. Utilizar almacenamiento local exclusivamente para preferencias y borradores temporales cuando corresponda. No utilizar localStorage como base principal de datos editoriales.</p>
+        <p>Implementar: guardado automático, control de concurrencia, detección de conflictos, versionado, recuperación, historial y registro de cambios.</p>
+        <p>Cada operación importante debe conservar: usuario, acción, fecha y hora, entidad afectada, estado anterior, estado nuevo, versión y observaciones. La memoria debe distinguir información histórica de información vigente.</p>
+      </div>
+
+      <!-- 21 -->
+      <div class="prompt-seccion">
+        <h2>21. SEGURIDAD</h2>
+        <p>Aplicar seguridad desde el diseño. Requisitos obligatorios:</p>
+        <ul>
+          <li>Autenticación.</li>
+          <li>Autorización.</li>
+          <li>RLS.</li>
+          <li>Validación backend.</li>
+          <li>Secretos fuera del frontend.</li>
+          <li>CORS restrictivo.</li>
+          <li>Validación de entradas.</li>
+          <li>Protección de archivos.</li>
+          <li>Límites de consumo.</li>
+          <li>Control de sesiones.</li>
+          <li>Manejo de errores.</li>
+          <li>Auditoría.</li>
+          <li>Principio de mínimo privilegio.</li>
+        </ul>
+        <p>Las restricciones de la interfaz no sustituyen los controles del servidor. Realizar pruebas de acceso indebido, escalamiento de privilegios y exposición de datos.</p>
+      </div>
+
+      <!-- 22 -->
+      <div class="prompt-seccion">
+        <h2>22. ACCESIBILIDAD Y RENDIMIENTO</h2>
+        <p>Garantizar: navegación por teclado, etiquetas accesibles, contraste suficiente, jerarquías semánticas, textos alternativos, formularios comprensibles, estados de foco visibles, compatibilidad con lectores de pantalla y diseño adaptable.</p>
+        <p>Optimizar: carga inicial, carga diferida de módulos, consultas paginadas, índices de búsqueda, tamaño de recursos, procesos de IA, recuperación ante errores y reintentos controlados.</p>
+        <p>Probar el funcionamiento en dispositivos móviles y conexiones lentas.</p>
+      </div>
+
+      <!-- 23 -->
+      <div class="prompt-seccion">
+        <h2>23. ESTRUCTURA DEL PROYECTO</h2>
+        <p>Adoptar una organización modular equivalente a:</p>
+        <div class="flujo" style="font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12.5px;white-space:pre;">
+madre-ecosistema/
+├── index.html
+├── assets/
+│   ├── css/
+│   ├── fonts/
+│   └── js/
+│       ├── core/
+│       ├── components/
+│       └── services/
+├── madre/
+├── biblioteca/
+├── editor-critico/
+├── transcripcion/
+├── observatorios/
+│   ├── economico/
+│   ├── territorial/
+│   └── audiencias/
+├── distribucion/
+├── admin/
+├── supabase/
+│   ├── migrations/
+│   ├── functions/
+│   └── config.toml
+├── tests/
+├── docs/
+└── README.md
+        </div>
+        <p>La estructura puede ajustarse si existe una justificación técnica, pero debe conservar la separación entre módulos, servicios compartidos, backend y documentación.</p>
+      </div>
+
+      <!-- 24 -->
+      <div class="prompt-seccion">
+        <h2>24. PLAN DE DESARROLLO E IMPLEMENTACIÓN</h2>
+        <p>Desarrollar por fases, manteniendo desde el comienzo una arquitectura integral.</p>
+
+        <h3>FASE 0. Preparación</h3>
+        <p>Crear el proyecto, configurar herramientas, definir estructura, configurar control de versiones, preparar documentación, definir variables de entorno y establecer convenciones de código. <strong>Entregable:</strong> proyecto inicial ejecutable.</p>
+
+        <h3>FASE 1. Núcleo y backend</h3>
+        <p>Configurar Supabase, diseñar base de datos, implementar migraciones, Auth, perfiles y roles, RLS, Storage, proxy de IA, servicios compartidos y auditoría. <strong>Entregable:</strong> núcleo operativo y seguro.</p>
+
+        <h3>FASE 2. Madre Editorial</h3>
+        <p>Crear interfaz de ingesta, implementar procesamiento, construir Unidad Editorial, fuentes y evidencias, investigación, verificación, generar seis formatos, edición y versiones. <strong>Entregable:</strong> cadena editorial funcional.</p>
+
+        <h3>FASE 3. Biblioteca Riojana</h3>
+        <p>Fichas, documentos, relaciones, búsqueda, embeddings, memoria semántica e historial. <strong>Entregable:</strong> memoria documental operativa.</p>
+
+        <h3>FASE 4. Editor Crítico y Transcripción</h3>
+        <p>Revisión asistida, detección de inconsistencias, gestión de observaciones, carga de audio, transcripción, corrección y vinculación editorial. <strong>Entregable:</strong> herramientas de apoyo cognitivo.</p>
+
+        <h3>FASE 5. Observatorios</h3>
+        <p>Modelo de datos, catálogo de indicadores, carga de fuentes, validación, series temporales, paneles y relaciones editoriales. <strong>Entregable:</strong> observatorios funcionales con datos identificables.</p>
+
+        <h3>FASE 6. Distribución</h3>
+        <p>Estados por canal, autorizaciones, WordPress, preparación de contenidos, historial y métricas de distribución. <strong>Entregable:</strong> distribución controlada.</p>
+
+        <h3>FASE 7. Validación y producción</h3>
+        <p>Pruebas funcionales, de seguridad, editoriales, de rendimiento y accesibilidad. Documentación, despliegue y monitoreo. <strong>Entregable:</strong> versión de producción validada.</p>
+      </div>
+
+      <!-- 25 -->
+      <div class="prompt-seccion">
+        <h2>25. PRUEBAS OBLIGATORIAS</h2>
+        <p>No considerar terminado un módulo sin pruebas.</p>
+
+        <h3>25.1. Pruebas funcionales</h3>
+        <p>Probar: autenticación, roles, ingesta, documentos, fuentes, Unidad Editorial, verificación, seis formatos, edición, versiones, Biblioteca, búsquedas, Observatorios, Distribución y Auditoría.</p>
+
+        <h3>25.2. Pruebas editoriales</h3>
+        <p>Utilizar casos de prueba que incluyan: comunicado institucional, denuncia no comprobada, fuentes contradictorias, documento histórico, estadística sin metodología, entrevista con fragmentos inaudibles, noticia que cambia con el tiempo, información sensible y error posterior a la publicación. Verificar que el sistema no convierta incertidumbre en certeza.</p>
+
+        <h3>25.3. Pruebas de seguridad</h3>
+        <p>Accesos entre usuarios, permisos incorrectos, acceso directo a endpoints, exposición de claves, RLS, archivos, sesiones, CORS y publicación no autorizada.</p>
+
+        <h3>25.4. Prueba integral de extremo a extremo</h3>
+        <p>Ejecutar este escenario:</p>
+        <ol>
+          <li>Ingresar un documento sobre una situación de interés público en La Rioja.</li>
+          <li>Conservar el original.</li>
+          <li>Extraer hechos y afirmaciones.</li>
+          <li>Recuperar antecedentes de Biblioteca Riojana.</li>
+          <li>Incorporar fuentes.</li>
+          <li>Relacionar evidencias.</li>
+          <li>Identificar contradicciones.</li>
+          <li>Construir la Unidad Editorial Madre.</li>
+          <li>Generar los seis formatos.</li>
+          <li>Ejecutar el Editor Crítico.</li>
+          <li>Corregir observaciones.</li>
+          <li>Aprobar mediante un editor humano.</li>
+          <li>Enviar un borrador a WordPress.</li>
+          <li>Registrar la respuesta.</li>
+          <li>Conservar la versión y el historial.</li>
+        </ol>
+        <p>Esta prueba debe demostrar que los módulos funcionan como un ecosistema integrado.</p>
+      </div>
+
+      <!-- 26 -->
+      <div class="prompt-seccion">
+        <h2>26. GUÍA DE ESTILO EDITORIAL</h2>
+        <p>Incorporar como norma transversal la Guía de Estilo Editorial de referencia. La guía establece criterios para: identidad editorial, rigor y veracidad, identidad riojana, independencia de criterio, pluralidad, memoria y contexto, claridad, precisión, lenguaje respetuoso, estructura de noticias, titulares y bajadas, fuentes y atribuciones, verificación, cobertura territorial, géneros periodísticos, ética, derechos, fotografía y video, convenciones lingüísticas, SEO, actualización, inteligencia artificial, correcciones, responsabilidades editoriales y checklist de publicación.</p>
+
+        <h3>26.1. Aplicación operativa</h3>
+        <p>La guía no debe quedar como un archivo aislado. Debe incorporarse al sistema mediante un servicio editorial compartido. Todos los módulos que generen o modifiquen contenidos deben poder consultar las reglas aplicables. El sistema debe utilizarlas para: orientar instrucciones de IA, revisar titulares, evaluar estructuras, detectar lenguaje estigmatizante, verificar atribuciones, recomendar correcciones, controlar metadatos y evaluar la publicación.</p>
+
+        <h3>26.2. Criterios editoriales fundamentales</h3>
+        <ul>
+          <li>Claridad antes que complejidad.</li>
+          <li>Precisión antes que espectacularidad.</li>
+          <li>Hechos diferenciados de interpretaciones.</li>
+          <li>Fuentes identificables.</li>
+          <li>Titulares fieles al contenido.</li>
+          <li>Cobertura territorial riojana.</li>
+          <li>Pluralidad de voces.</li>
+          <li>Respeto por las personas.</li>
+          <li>Contexto histórico y social.</li>
+          <li>Transparencia en las correcciones.</li>
+          <li>Responsabilidad humana.</li>
+        </ul>
+        <p>La guía de referencia es una propuesta institucional que requiere validación de la dirección del medio. El sistema debe permitir administrar versiones y modificaciones sin alterar retroactivamente las producciones históricas.</p>
+      </div>
+
+      <!-- 27 -->
+      <div class="prompt-seccion">
+        <h2>27. DOCUMENTACIÓN Y ENTREGABLES</h2>
+        <p>Crear y mantener:</p>
+        <ul>
+          <li>README.md.</li>
+          <li>Documento de arquitectura.</li>
+          <li>Diagrama de módulos.</li>
+          <li>Diagrama de base de datos.</li>
+          <li>Diccionario de datos.</li>
+          <li>Documentación de Edge Functions.</li>
+          <li>Esquemas JSON.</li>
+          <li>Manual de instalación.</li>
+          <li>Manual de configuración.</li>
+          <li>Manual de usuario.</li>
+          <li>Matriz de permisos.</li>
+          <li>Registro de pruebas.</li>
+          <li>Registro de errores conocidos.</li>
+          <li>Guía de despliegue.</li>
+          <li>Guía de mantenimiento.</li>
+        </ul>
+        <p>Las credenciales, contraseñas y secretos nunca deben incluirse en la documentación pública.</p>
+      </div>
+
+      <!-- 28 -->
+      <div class="prompt-seccion">
+        <h2>28. REGLAS DE TRABAJO DEL AGENTE</h2>
+        <p>Estas instrucciones son obligatorias durante todo el desarrollo.</p>
+        <ol>
+          <li>Trabaja sobre el proyecto real, no entregues solamente ejemplos.</li>
+          <li>Crea los archivos necesarios.</li>
+          <li>Implementa las funcionalidades completas.</li>
+          <li>Integra frontend y backend.</li>
+          <li>Ejecuta las pruebas disponibles.</li>
+          <li>Corrige errores detectados.</li>
+          <li>No simules conexiones.</li>
+          <li>No declares terminado lo que no funciona.</li>
+          <li>No reemplaces código sin revisar sus dependencias.</li>
+          <li>No elimines información ni migraciones sin justificación.</li>
+          <li>Mantén la arquitectura modular.</li>
+          <li>Documenta las decisiones técnicas relevantes.</li>
+          <li>Prioriza seguridad y trazabilidad.</li>
+          <li>Conserva la experiencia de usuario consistente.</li>
+          <li>No sacrifiques rigor editorial para acelerar la generación.</li>
+          <li>No utilices datos de demostración como información real.</li>
+          <li>No publiques automáticamente.</li>
+          <li>Si una integración requiere credenciales o acceso externo, prepara su implementación y solicita lo necesario para probarla.</li>
+          <li>Si una dependencia externa no está disponible, informa la limitación y continúa con las tareas independientes.</li>
+          <li>No detengas el desarrollo para solicitar confirmación de decisiones técnicas ordinarias que puedas resolver justificadamente.</li>
+        </ol>
+        <p>Cuando una decisión afecte el alcance, la seguridad, la identidad institucional o el comportamiento editorial, documenta la decisión y solicita definición si no existe una regla previa.</p>
+      </div>
+
+      <!-- 29 -->
+      <div class="prompt-seccion">
+        <h2>29. CRITERIOS DE ACEPTACIÓN DEL PRODUCTO</h2>
+        <p>MADRE no puede considerarse terminado por tener una interfaz atractiva o un botón que invoque una IA. Debe demostrar que:</p>
+        <ul>
+          <li>Recibe información desde distintas fuentes.</li>
+          <li>Conserva originales.</li>
+          <li>Organiza hechos y afirmaciones.</li>
+          <li>Identifica fuentes y evidencias.</li>
+          <li>Investiga y recupera antecedentes.</li>
+          <li>Diferencia hechos, opiniones e hipótesis.</li>
+          <li>Detecta contradicciones.</li>
+          <li>Construye una Unidad Editorial Madre.</li>
+          <li>Produce exactamente seis formatos.</li>
+          <li>Mantiene coherencia entre ellos.</li>
+          <li>Permite edición y versionado.</li>
+          <li>Dispone de Biblioteca Riojana.</li>
+          <li>Incorpora Editor Crítico.</li>
+          <li>Permite transcripción.</li>
+          <li>Gestiona observatorios.</li>
+          <li>Administra estados y autorizaciones.</li>
+          <li>Conserva auditoría.</li>
+          <li>Gestiona distribución.</li>
+          <li>Envía borradores a WordPress.</li>
+          <li>Protege los datos.</li>
+          <li>Funciona en dispositivos móviles.</li>
+          <li>Cuenta con documentación y pruebas.</li>
+        </ul>
+        <p>La cadena editorial integral debe funcionar de principio a fin.</p>
+      </div>
+
+      <!-- 30 -->
+      <div class="prompt-seccion">
+        <h2>30. PRIMERA INSTRUCCIÓN DE EJECUCIÓN</h2>
+        <p><strong>INICIA EL DESARROLLO DE MADRE DESDE CERO.</strong></p>
+        <p>No respondas solamente con una planificación. Comienza creando el proyecto, su estructura, los archivos iniciales y la infraestructura técnica.</p>
+        <p>Ejecuta las siguientes acciones:</p>
+        <ol>
+          <li>Inicializa el repositorio y la estructura modular.</li>
+          <li>Configura el entorno de desarrollo.</li>
+          <li>Implementa el Shell principal.</li>
+          <li>Configura la conexión con Supabase.</li>
+          <li>Diseña y crea las primeras migraciones.</li>
+          <li>Implementa autenticación y roles.</li>
+          <li>Construye los servicios compartidos.</li>
+          <li>Prepara el proxy seguro de IA.</li>
+          <li>Implementa la primera versión funcional del módulo Madre Editorial.</li>
+          <li>Construye la Unidad Editorial y el flujo de ingesta.</li>
+          <li>Implementa la generación de los seis formatos.</li>
+          <li>Ejecuta pruebas y documenta los resultados.</li>
+          <li>Continúa con las fases siguientes hasta completar el ecosistema.</li>
+        </ol>
+        <p>Si no se dispone de credenciales externas, desarrolla la integración hasta el límite técnicamente posible, deja configuradas las variables necesarias y documenta exactamente qué acceso falta para realizar la prueba real. No inventes resultados de pruebas.</p>
+        <p>Al finalizar cada fase, informa:</p>
+        <ul>
+          <li>Qué se implementó.</li>
+          <li>Qué archivos se crearon o modificaron.</li>
+          <li>Qué migraciones se ejecutaron.</li>
+          <li>Qué funcionalidades funcionan.</li>
+          <li>Qué pruebas se realizaron.</li>
+          <li>Qué errores quedan pendientes.</li>
+          <li>Qué integraciones requieren credenciales.</li>
+          <li>Cuál es el siguiente hito.</li>
+        </ul>
+      </div>
+
+      <!-- Principio final -->
+      <div class="principio-final">
+        <h2>PRINCIPIO FINAL</h2>
+        <p>MADRE debe convertirse en una infraestructura de conocimiento periodístico.</p>
+        <p>No debe limitarse a producir más contenidos, sino mejorar la capacidad de investigar, comprender, verificar, contextualizar, conservar memoria y comunicar información relevante.</p>
+        <p>Su arquitectura debe permitir que cada hecho investigado pueda convertirse en conocimiento documentado, que cada producción pueda generar múltiples formatos y que cada publicación conserve su origen, sus evidencias, sus versiones y su responsabilidad editorial.</p>
+        <p class="frase">UN ECOSISTEMA. UNA ARQUITECTURA. UNA MEMORIA COMPARTIDA.</p>
+        <p class="frase">LA IA PRODUCE ASISTENCIA. MADRE ORGANIZA EL CONOCIMIENTO.<br>LAS PERSONAS CONSERVAN LA RESPONSABILIDAD EDITORIAL.</p>
+
+
+        <div data-response-body="974bd336-9e1d-407b-992a-a5944380f597"><div class="group flex min-w-0 flex-col" data-chatgpt-selection-conversation-id="6afcf0cb-3bf0-83e9-9733-c4a4ecb2ce64" data-chatgpt-selection-message-id="974bd336-9e1d-407b-992a-a5944380f597"><div data-selected-text-overlay-target="_r_62q_" dir="auto" data-markdown-text-style="assistant-message" class="MarkdownRoot-rZKhxa [&amp;&gt;*:first-child]:mt-0 [&amp;&gt;*:last-child]:mb-0 [&amp;&gt;*:last-child]:mb-0 [&amp;&gt;ol:first-child]:mt-0 [&amp;&gt;ul:first-child]:mt-0" style="--markdown-link-color: currentColor;"><div class="my-4 first:mt-0 last:mb-0 empty:hidden" data-dil-source-message-id="974bd336-9e1d-407b-992a-a5944380f597" data-chatgpt-copy-reference="1" data-markdown-copy="contents"><div class="[--entity-prose-inset:0px]"><div hidden=""></div><div class="relative PortalBoundary-TFj9W2 Renderer-ojZscX" data-theme="dark" style="--puik-portal-zoom: 1;"><div dir="auto" class="DilRenderer-temL23 DilResponseRoot-fdCmoC Reveal-eHl_0F" data-dil-response="" data-d-direction="col" data-dil-message-id="974bd336-9e1d-407b-992a-a5944380f597"><h2 class="TextBase-kDAqPL Title-ij922C" data-d-text-flow="" data-d-component="title" data-d-size="lg" data-d-weight="semibold"><strong class="Emphasis-BHzYtQ">20.1. Tipos de notificaciones</strong></h2><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text">Quedan definidos siete eventos:</p><div class="TableFrame-goa0AO" data-d-column-sizing="auto" data-d-component="table"><div class="TableViewport-RIVuau" data-d-table-viewport="true"><table class="Table-s3u64B" data-d-column-sizing="auto" data-d-dividers="" style="table-layout: auto;"><tbody><tr data-d-component="table-row"><th data-d-component="table-cell" data-d-valign="start" scope="col"><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text">Evento</p></th><th data-d-component="table-cell" data-d-valign="start" scope="col"><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text">Destinatario</p></th><th data-d-component="table-cell" data-d-valign="start" scope="col"><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text">Aviso</p></th></tr><tr data-d-component="table-row"><td data-d-component="table-cell" data-d-valign="start"><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text">Nueva asignación</p></td><td data-d-component="table-cell" data-d-valign="start"><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text">Responsable</p></td><td data-d-component="table-cell" data-d-valign="start"><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text">Se le asignó una producción</p></td></tr><tr data-d-component="table-row"><td data-d-component="table-cell" data-d-valign="start"><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text">Reasignación</p></td><td data-d-component="table-cell" data-d-valign="start"><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text">Responsable anterior</p></td><td data-d-component="table-cell" data-d-valign="start"><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text">La tarea fue reasignada</p></td></tr><tr data-d-component="table-row"><td data-d-component="table-cell" data-d-valign="start"><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text">Revisión solicitada</p></td><td data-d-component="table-cell" data-d-valign="start"><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text">Revisores y editores</p></td><td data-d-component="table-cell" data-d-valign="start"><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text">Hay una pieza pendiente</p></td></tr><tr data-d-component="table-row"><td data-d-component="table-cell" data-d-valign="start"><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text">Correcciones</p></td><td data-d-component="table-cell" data-d-valign="start"><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text">Autor y responsable</p></td><td data-d-component="table-cell" data-d-valign="start"><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text">Se solicitaron modificaciones</p></td></tr><tr data-d-component="table-row"><td data-d-component="table-cell" data-d-valign="start"><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text">Aprobación</p></td><td data-d-component="table-cell" data-d-valign="start"><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text" data-thread-reading-passage="">Autor y responsable</p></td><td data-d-component="table-cell" data-d-valign="start"><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text">La producción fue aprobada</p></td></tr><tr data-d-component="table-row"><td data-d-component="table-cell" data-d-valign="start"><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text">Vencimiento próximo</p></td><td data-d-component="table-cell" data-d-valign="start"><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text">Responsable</p></td><td data-d-component="table-cell" data-d-valign="start"><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text">Faltan menos de 24 horas</p></td></tr><tr data-d-component="table-row"><td data-d-component="table-cell" data-d-valign="start"><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text">Tarea vencida</p></td><td data-d-component="table-cell" data-d-valign="start"><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text">Responsable</p></td><td data-d-component="table-cell" data-d-valign="start"><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text">Se superó la fecha límite</p></td></tr></tbody></table></div><div aria-hidden="true" class="Edges-nCUHEi" style="left: 0px; top: 0px; width: 847px; height: 293px;"></div></div><h2 class="TextBase-kDAqPL Title-ij922C" data-d-text-flow="" data-d-component="title" data-d-size="lg" data-d-weight="semibold"><strong class="Emphasis-BHzYtQ">20.2. Centro de notificaciones</strong></h2><div class="Box-JYjgF4" data-d-component="box" data-d-direction="col" data-d-has-border="" style="border: 1px solid var(--color-border); border-radius: var(--dil-radius-lg); --w-box-gutter-block-end: calc(var(--spacing, 0.25rem) * 3); --w-box-gutter-block-start: calc(var(--spacing, 0.25rem) * 3); --w-box-gutter-inline-end: calc(var(--spacing, 0.25rem) * 3); --w-box-gutter-inline-start: calc(var(--spacing, 0.25rem) * 3); padding-block: calc(var(--spacing, 0.25rem) * 3); padding-inline: calc(var(--spacing, 0.25rem) * 3); gap: calc(var(--spacing, 0.25rem) * 3);"><div class="Box-JYjgF4" data-d-align="center" data-d-auto-spacing="" data-d-component="row" data-d-direction="row" data-d-justify="between"><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text"><span class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text" data-d-default-strong="" data-d-inline=""><strong class="Emphasis-BHzYtQ">MADRE · CENTRO EDITORIAL</strong></span></p><div class="Badge-_iijmO Badge-v4RzAb" data-color="success" data-size="sm" data-pill="" data-variant="soft" data-d-component="badge" data-d-weight="medium">Diseño implementado</div></div><div class="Box-JYjgF4" data-d-align="center" data-d-auto-spacing="" data-d-component="row" data-d-direction="row" data-d-justify="between"><h1 class="TextBase-kDAqPL Title-ij922C" data-d-text-flow="" data-d-component="title" data-d-size="xl" data-d-weight="semibold"><strong class="Emphasis-BHzYtQ">Notificaciones</strong></h1><div class="Badge-_iijmO Badge-v4RzAb" data-color="secondary" data-size="sm" data-pill="" data-variant="soft" data-d-component="badge" data-d-weight="medium">3 pendientes</div></div><div class="Divider-aIXBUs" data-d-component="divider" style="--divider-color: var(--color-border-subtle); --divider-size: 1px;"></div><div class="Box-JYjgF4" data-d-align="start" data-d-component="row" data-d-direction="row" style="gap: calc(var(--spacing, 0.25rem) * 2);"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" data-d-component="icon" style="font-size: 18px;"><path d="M12.0002 4C10.3434 4 9.00024 5.34315 9.00024 7C9.00024 8.65685 10.3434 10 12.0002 10C13.6571 10 15.0002 8.65685 15.0002 7C15.0002 5.34315 13.6571 4 12.0002 4ZM7.00024 7C7.00024 4.23858 9.23881 2 12.0002 2C14.7617 2 17.0002 4.23858 17.0002 7C17.0002 9.76142 14.7617 12 12.0002 12C9.23881 12 7.00024 9.76142 7.00024 7ZM12.0002 15C8.55639 15 5.7374 17.6788 5.51448 21.0657C5.47821 21.6168 5.00205 22.0341 4.45096 21.9978C3.89987 21.9616 3.48252 21.4854 3.5188 20.9343C3.81046 16.5031 7.49584 13 12.0002 13C12.3836 13 12.7615 13.0254 13.1323 13.0748C13.6798 13.1478 14.0644 13.6507 13.9915 14.1982C13.9185 14.7456 13.4156 15.1303 12.8682 15.0573C12.5847 15.0196 12.295 15 12.0002 15ZM18 14C18.5523 14 19.0001 14.4476 19.0001 14.9999L19.0003 17H21.0002C21.5525 17 22.0002 17.4477 22.0002 18C22.0002 18.5523 21.5525 19 21.0002 19H19.0004V21C19.0004 21.5523 18.5527 22 18.0004 22C17.4481 22 17.0004 21.5523 17.0004 21V19H15.0002C14.448 19 14.0002 18.5523 14.0002 18C14.0002 17.4477 14.448 17 15.0002 17H17.0003L17.0001 15.0001C17.0001 14.4478 17.4477 14 18 14Z" fill="currentColor"></path></svg><div class="Box-JYjgF4" data-d-component="box" data-d-direction="col" style="flex: 1 1 0%; gap: calc(var(--spacing, 0.25rem) * 1);"><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text"><span class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text" data-d-default-strong="" data-d-inline=""><strong class="Emphasis-BHzYtQ">Nueva asignación editorial</strong></span></p><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text">Se te asignó una unidad editorial. Prioridad alta.</p><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text" data-d-size="xs" style="color: var(--color-text-secondary);">Hace 5 minutos · Asignación</p></div></div><div class="Divider-aIXBUs" data-d-component="divider" style="--divider-color: var(--color-border-subtle); --divider-size: 1px;"></div><div class="Box-JYjgF4" data-d-align="start" data-d-component="row" data-d-direction="row" style="gap: calc(var(--spacing, 0.25rem) * 2);"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clipboard-check" data-d-component="icon" style="font-size: 18px;"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"></rect><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><path d="m9 14 2 2 4-4"></path></svg><div class="Box-JYjgF4" data-d-component="box" data-d-direction="col" style="flex: 1 1 0%; gap: calc(var(--spacing, 0.25rem) * 1);"><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text"><span class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text" data-d-default-strong="" data-d-inline=""><strong class="Emphasis-BHzYtQ">Hay una producción para revisar</strong></span></p><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text">Una unidad editorial fue enviada al circuito de revisión.</p><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text" data-d-size="xs" style="color: var(--color-text-secondary);">Hace 35 minutos · Revisión</p></div></div><div class="Divider-aIXBUs" data-d-component="divider" style="--divider-color: var(--color-border-subtle); --divider-size: 1px;"></div><div class="Box-JYjgF4" data-d-align="start" data-d-component="row" data-d-direction="row" style="gap: calc(var(--spacing, 0.25rem) * 2);"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" data-d-component="icon" style="font-size: 18px;"><path d="M12 4C7.58172 4 4 7.58172 4 12C4 16.4183 7.58172 20 12 20C16.4183 20 20 16.4183 20 12C20 7.58172 16.4183 4 12 4ZM2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12ZM12 6C12.5523 6 13 6.44772 13 7V12C13 12.2652 12.8946 12.5196 12.7071 12.7071L10.2071 15.2071C9.81658 15.5976 9.18342 15.5976 8.79289 15.2071C8.40237 14.8166 8.40237 14.1834 8.79289 13.7929L11 11.5858V7C11 6.44772 11.4477 6 12 6Z" fill="currentColor"></path></svg><div class="Box-JYjgF4" data-d-component="box" data-d-direction="col" style="flex: 1 1 0%; gap: calc(var(--spacing, 0.25rem) * 1);"><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text"><span class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text" data-d-default-strong="" data-d-inline=""><strong class="Emphasis-BHzYtQ">Vence una tarea editorial</strong></span></p><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text">Una producción tiene vencimiento dentro de las próximas 24 horas.</p><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text" data-d-size="xs" style="color: var(--color-text-secondary);">Hoy · Vencimiento</p></div></div><div class="Divider-aIXBUs" data-d-component="divider" style="--divider-color: var(--color-border-subtle); --divider-size: 1px;"></div><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text" data-d-size="xs" style="color: var(--color-text-secondary);">Vista ilustrativa del funcionamiento; los avisos mostrados no son registros reales.</p></div><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text">La interfaz implementada incluye:</p><ul class="List-bYalj1" data-d-component="list" data-d-marker="bullet" data-d-marker-layout="native" style="--d-list-row-gap: calc(var(--spacing, 0.25rem) * 0); gap: calc(var(--spacing, 0.25rem) * 0);"><li class="Item-EWTmaR" data-d-component="list-item" data-d-marker-layout="native"><div class="Content-DbD0Oj"><div class="Label-qdSQ_4" data-d-list-item-content=""><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text">Campana y contador de notificaciones pendientes.</p></div></div></li><li class="Item-EWTmaR" data-d-component="list-item" data-d-marker-layout="native"><div class="Content-DbD0Oj"><div class="Label-qdSQ_4" data-d-list-item-content=""><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text">Panel desplegable.</p></div></div></li><li class="Item-EWTmaR" data-d-component="list-item" data-d-marker-layout="native"><div class="Content-DbD0Oj"><div class="Label-qdSQ_4" data-d-list-item-content=""><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text">Diferenciación entre avisos leídos y no leídos.</p></div></div></li><li class="Item-EWTmaR" data-d-component="list-item" data-d-marker-layout="native"><div class="Content-DbD0Oj"><div class="Label-qdSQ_4" data-d-list-item-content=""><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text">Acción para marcar todas como leídas.</p></div></div></li><li class="Item-EWTmaR" data-d-component="list-item" data-d-marker-layout="native"><div class="Content-DbD0Oj"><div class="Label-qdSQ_4" data-d-list-item-content=""><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text">Acceso directo a la unidad editorial correspondiente.</p></div></div></li><li class="Item-EWTmaR" data-d-component="list-item" data-d-marker-layout="native"><div class="Content-DbD0Oj"><div class="Label-qdSQ_4" data-d-list-item-content=""><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text">Actualización mediante Supabase Realtime.</p></div></div></li><li class="Item-EWTmaR" data-d-component="list-item" data-d-marker-layout="native"><div class="Content-DbD0Oj"><div class="Label-qdSQ_4" data-d-list-item-content=""><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text">Adaptación para dispositivos móviles.</p></div></div></li></ul><h2 class="TextBase-kDAqPL Title-ij922C" data-d-text-flow="" data-d-component="title" data-d-size="lg" data-d-weight="semibold"><strong class="Emphasis-BHzYtQ">20.3. Arquitectura técnica</strong></h2><div class="Box-JYjgF4" data-d-component="box" data-d-direction="col" data-d-has-border="" style="border: 1px solid var(--color-border); border-radius: var(--dil-radius-lg); --w-box-gutter-block-end: calc(var(--spacing, 0.25rem) * 3); --w-box-gutter-block-start: calc(var(--spacing, 0.25rem) * 3); --w-box-gutter-inline-end: calc(var(--spacing, 0.25rem) * 3); --w-box-gutter-inline-start: calc(var(--spacing, 0.25rem) * 3); padding-block: calc(var(--spacing, 0.25rem) * 3); padding-inline: calc(var(--spacing, 0.25rem) * 3); gap: calc(var(--spacing, 0.25rem) * 2);"><div class="Box-JYjgF4" data-d-align="center" data-d-auto-spacing="" data-d-component="box" data-d-direction="col" style="--smoothing-background-color: var(--color-surface-secondary); border-radius: var(--dil-radius-md); --w-box-gutter-block-end: calc(var(--spacing, 0.25rem) * 3); --w-box-gutter-block-start: calc(var(--spacing, 0.25rem) * 3); --w-box-gutter-inline-end: calc(var(--spacing, 0.25rem) * 3); --w-box-gutter-inline-start: calc(var(--spacing, 0.25rem) * 3); padding-block: calc(var(--spacing, 0.25rem) * 3); padding-inline: calc(var(--spacing, 0.25rem) * 3); background-color: var(--color-surface-secondary);"><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text"><span class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text" data-d-default-strong="" data-d-inline=""><strong class="Emphasis-BHzYtQ">Eventos editoriales</strong></span></p><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text" data-d-size="xs" style="color: var(--color-text-secondary);">Asignaciones · revisiones · aprobaciones · vencimientos</p></div><div class="Box-JYjgF4" data-d-align="center" data-d-auto-spacing="" data-d-component="box" data-d-direction="col"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" data-d-component="icon" style="font-size: 16px;"><path fill-rule="evenodd" d="M12.707 18.707a1 1 0 0 1-1.414 0l-5-5a1 1 0 1 1 1.414-1.414L11 15.586V6a1 1 0 1 1 2 0v9.586l3.293-3.293a1 1 0 0 1 1.414 1.414l-5 5Z" clip-rule="evenodd"></path></svg></div><div class="Box-JYjgF4" data-d-align="center" data-d-auto-spacing="" data-d-component="box" data-d-direction="col" style="--smoothing-background-color: var(--color-surface-secondary); border-radius: var(--dil-radius-md); --w-box-gutter-block-end: calc(var(--spacing, 0.25rem) * 3); --w-box-gutter-block-start: calc(var(--spacing, 0.25rem) * 3); --w-box-gutter-inline-end: calc(var(--spacing, 0.25rem) * 3); --w-box-gutter-inline-start: calc(var(--spacing, 0.25rem) * 3); padding-block: calc(var(--spacing, 0.25rem) * 3); padding-inline: calc(var(--spacing, 0.25rem) * 3); background-color: var(--color-surface-secondary);"><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text"><span class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text" data-d-default-strong="" data-d-inline=""><strong class="Emphasis-BHzYtQ">PostgreSQL / Supabase</strong></span></p><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text" data-d-size="xs" style="color: var(--color-text-secondary);">Triggers · funciones internas · RLS</p></div><div class="Box-JYjgF4" data-d-align="center" data-d-auto-spacing="" data-d-component="box" data-d-direction="col"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" data-d-component="icon" style="font-size: 16px;"><path fill-rule="evenodd" d="M12.707 18.707a1 1 0 0 1-1.414 0l-5-5a1 1 0 1 1 1.414-1.414L11 15.586V6a1 1 0 1 1 2 0v9.586l3.293-3.293a1 1 0 0 1 1.414 1.414l-5 5Z" clip-rule="evenodd"></path></svg></div><div class="Box-JYjgF4" data-d-align="center" data-d-auto-spacing="" data-d-component="box" data-d-direction="col" style="--smoothing-background-color: var(--color-surface-secondary); border-radius: var(--dil-radius-md); --w-box-gutter-block-end: calc(var(--spacing, 0.25rem) * 3); --w-box-gutter-block-start: calc(var(--spacing, 0.25rem) * 3); --w-box-gutter-inline-end: calc(var(--spacing, 0.25rem) * 3); --w-box-gutter-inline-start: calc(var(--spacing, 0.25rem) * 3); padding-block: calc(var(--spacing, 0.25rem) * 3); padding-inline: calc(var(--spacing, 0.25rem) * 3); background-color: var(--color-surface-secondary);"><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text"><span class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text" data-d-default-strong="" data-d-inline=""><strong class="Emphasis-BHzYtQ">editorial</strong><strong class="Emphasis-BHzYtQ">_</strong><strong class="Emphasis-BHzYtQ">notifications</strong></span></p><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text" data-d-size="xs" style="color: var(--color-text-secondary);">Persistencia · destinatario · estado de lectura</p></div><div class="Box-JYjgF4" data-d-align="center" data-d-auto-spacing="" data-d-component="box" data-d-direction="col"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" data-d-component="icon" style="font-size: 16px;"><path fill-rule="evenodd" d="M12.707 18.707a1 1 0 0 1-1.414 0l-5-5a1 1 0 1 1 1.414-1.414L11 15.586V6a1 1 0 1 1 2 0v9.586l3.293-3.293a1 1 0 0 1 1.414 1.414l-5 5Z" clip-rule="evenodd"></path></svg></div><div class="Box-JYjgF4" data-d-align="center" data-d-auto-spacing="" data-d-component="box" data-d-direction="col" style="--smoothing-background-color: var(--color-surface-secondary); border-radius: var(--dil-radius-md); --w-box-gutter-block-end: calc(var(--spacing, 0.25rem) * 3); --w-box-gutter-block-start: calc(var(--spacing, 0.25rem) * 3); --w-box-gutter-inline-end: calc(var(--spacing, 0.25rem) * 3); --w-box-gutter-inline-start: calc(var(--spacing, 0.25rem) * 3); padding-block: calc(var(--spacing, 0.25rem) * 3); padding-inline: calc(var(--spacing, 0.25rem) * 3); background-color: var(--color-surface-secondary);"><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text"><span class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text" data-d-default-strong="" data-d-inline=""><strong class="Emphasis-BHzYtQ">NotificationsService</strong></span></p><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text" data-d-size="xs" style="color: var(--color-text-secondary);">Consulta · contador · actualización · suscripción</p></div><div class="Box-JYjgF4" data-d-align="center" data-d-auto-spacing="" data-d-component="box" data-d-direction="col"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" data-d-component="icon" style="font-size: 16px;"><path fill-rule="evenodd" d="M12.707 18.707a1 1 0 0 1-1.414 0l-5-5a1 1 0 1 1 1.414-1.414L11 15.586V6a1 1 0 1 1 2 0v9.586l3.293-3.293a1 1 0 0 1 1.414 1.414l-5 5Z" clip-rule="evenodd"></path></svg></div><div class="Box-JYjgF4" data-d-align="center" data-d-auto-spacing="" data-d-component="box" data-d-direction="col" data-d-has-border="" style="--smoothing-background-color: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--dil-radius-md); --w-box-gutter-block-end: calc(var(--spacing, 0.25rem) * 3); --w-box-gutter-block-start: calc(var(--spacing, 0.25rem) * 3); --w-box-gutter-inline-end: calc(var(--spacing, 0.25rem) * 3); --w-box-gutter-inline-start: calc(var(--spacing, 0.25rem) * 3); padding-block: calc(var(--spacing, 0.25rem) * 3); padding-inline: calc(var(--spacing, 0.25rem) * 3); background-color: var(--color-surface);"><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text"><span class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text" data-d-default-strong="" data-d-inline=""><strong class="Emphasis-BHzYtQ">Centro de notificaciones Madre</strong></span></p></div></div><h3 class="TextBase-kDAqPL Title-ij922C" data-d-text-flow="" data-d-component="title" data-d-size="md" data-d-weight="semibold"><strong class="Emphasis-BHzYtQ">Seguridad</strong></h3><ul class="List-bYalj1" data-d-component="list" data-d-marker="bullet" data-d-marker-layout="native" style="--d-list-row-gap: calc(var(--spacing, 0.25rem) * 0); gap: calc(var(--spacing, 0.25rem) * 0);"><li class="Item-EWTmaR" data-d-component="list-item" data-d-marker-layout="native"><div class="Content-DbD0Oj"><div class="Label-qdSQ_4" data-d-list-item-content=""><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text">RLS limita cada consulta a las notificaciones del usuario correspondiente.</p></div></div></li><li class="Item-EWTmaR" data-d-component="list-item" data-d-marker-layout="native"><div class="Content-DbD0Oj"><div class="Label-qdSQ_4" data-d-list-item-content=""><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text">Los usuarios no pueden modificar el contenido de los avisos.</p></div></div></li><li class="Item-EWTmaR" data-d-component="list-item" data-d-marker-layout="native"><div class="Content-DbD0Oj"><div class="Label-qdSQ_4" data-d-list-item-content=""><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text">Las notificaciones leídas no pueden volver a estado no leído.</p></div></div></li><li class="Item-EWTmaR" data-d-component="list-item" data-d-marker-layout="native"><div class="Content-DbD0Oj"><div class="Label-qdSQ_4" data-d-list-item-content=""><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text">Las funciones privilegiadas de los triggers están aisladas en un esquema interno.</p></div></div></li><li class="Item-EWTmaR" data-d-component="list-item" data-d-marker-layout="native"><div class="Content-DbD0Oj"><div class="Label-qdSQ_4" data-d-list-item-content=""><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text">Los avisos no modifican estados editoriales ni autorizan publicaciones.</p></div></div></li></ul><h2 class="TextBase-kDAqPL Title-ij922C" data-d-text-flow="" data-d-component="title" data-d-size="lg" data-d-weight="semibold"><strong class="Emphasis-BHzYtQ">20.4. Incorporación al proyecto</strong></h2><div class="Badge-_iijmO Badge-v4RzAb" data-color="success" data-size="sm" data-pill="" data-variant="soft" data-d-component="badge" data-d-weight="medium">Migración aplicada en Supabase</div><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text">Se incorporaron seis archivos al cambio de GitHub:</p><div class="TableFrame-goa0AO" data-d-column-sizing="auto" data-d-component="table"><div class="TableViewport-RIVuau" data-d-table-viewport="true"><table class="Table-s3u64B" data-d-column-sizing="auto" data-d-dividers="" style="table-layout: auto;"><tbody><tr data-d-component="table-row"><th data-d-component="table-cell" data-d-valign="start" scope="col"><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text">Archivo</p></th><th data-d-component="table-cell" data-d-valign="start" scope="col"><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text">Función</p></th></tr><tr data-d-component="table-row"><td data-d-break-long-token="" data-d-component="table-cell" data-d-valign="start"><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text"><code class="Code-LNMR8q" data-d-component="code">supabase/migrations/20261117213000_editorial_notifications.sql</code></p></td><td data-d-component="table-cell" data-d-valign="start"><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text">Base de datos y seguridad</p></td></tr><tr data-d-component="table-row"><td data-d-break-long-token="" data-d-component="table-cell" data-d-valign="start"><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text"><code class="Code-LNMR8q" data-d-component="code">src/shared/services/notifications.service.js</code></p></td><td data-d-component="table-cell" data-d-valign="start"><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text">Servicio de notificaciones</p></td></tr><tr data-d-component="table-row"><td data-d-break-long-token="" data-d-component="table-cell" data-d-valign="start"><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text"><code class="Code-LNMR8q" data-d-component="code">src/modules/madre-editorial/notifications.view.js</code></p></td><td data-d-component="table-cell" data-d-valign="start"><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text">Interfaz</p></td></tr><tr data-d-component="table-row"><td data-d-break-long-token="" data-d-component="table-cell" data-d-valign="start"><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text"><code class="Code-LNMR8q" data-d-component="code">src/modules/madre-editorial/editorial.view.js</code></p></td><td data-d-component="table-cell" data-d-valign="start"><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text">Integración en Madre Editorial</p></td></tr><tr data-d-component="table-row"><td data-d-component="table-cell" data-d-valign="start"><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text"><code class="Code-LNMR8q" data-d-component="code">src/styles/main.css</code></p></td><td data-d-component="table-cell" data-d-valign="start"><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text">Diseño adaptable</p></td></tr><tr data-d-component="table-row"><td data-d-break-long-token="" data-d-component="table-cell" data-d-valign="start"><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text"><code class="Code-LNMR8q" data-d-component="code">docs/ESTADO-IMPLEMENTACION.md</code></p></td><td data-d-component="table-cell" data-d-valign="start"><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text">Documentación</p></td></tr></tbody></table></div><div aria-hidden="true" class="Edges-nCUHEi" style="left: 0px; top: 0px; width: 847px; height: 268px;"></div></div><h2 class="TextBase-kDAqPL Title-ij922C" data-d-text-flow="" data-d-component="title" data-d-size="lg" data-d-weight="semibold"><strong class="Emphasis-BHzYtQ">20.5. Pruebas realizadas</strong></h2><div class="Box-JYjgF4" data-d-component="box" data-d-direction="col" data-d-has-border="" style="border: 1px solid var(--color-border); border-radius: var(--dil-radius-lg); --w-box-gutter-block-end: calc(var(--spacing, 0.25rem) * 3); --w-box-gutter-block-start: calc(var(--spacing, 0.25rem) * 3); --w-box-gutter-inline-end: calc(var(--spacing, 0.25rem) * 3); --w-box-gutter-inline-start: calc(var(--spacing, 0.25rem) * 3); padding-block: calc(var(--spacing, 0.25rem) * 3); padding-inline: calc(var(--spacing, 0.25rem) * 3); gap: calc(var(--spacing, 0.25rem) * 2);"><div class="Box-JYjgF4" data-d-auto-spacing="" data-d-component="row" data-d-direction="row" data-d-justify="between"><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text">Migración aplicada</p><div class="Badge-_iijmO Badge-v4RzAb" data-color="success" data-size="sm" data-pill="" data-variant="soft" data-d-component="badge" data-d-weight="medium">Correcto</div></div><div class="Box-JYjgF4" data-d-auto-spacing="" data-d-component="row" data-d-direction="row" data-d-justify="between"><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text">RLS habilitado</p><div class="Badge-_iijmO Badge-v4RzAb" data-color="success" data-size="sm" data-pill="" data-variant="soft" data-d-component="badge" data-d-weight="medium">Correcto</div></div><div class="Box-JYjgF4" data-d-auto-spacing="" data-d-component="row" data-d-direction="row" data-d-justify="between"><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text">Tres políticas de acceso</p><div class="Badge-_iijmO Badge-v4RzAb" data-color="success" data-size="sm" data-pill="" data-variant="soft" data-d-component="badge" data-d-weight="medium">Correcto</div></div><div class="Box-JYjgF4" data-d-auto-spacing="" data-d-component="row" data-d-direction="row" data-d-justify="between"><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text">Triggers de trabajo y revisión</p><div class="Badge-_iijmO Badge-v4RzAb" data-color="success" data-size="sm" data-pill="" data-variant="soft" data-d-component="badge" data-d-weight="medium">Correcto</div></div><div class="Box-JYjgF4" data-d-auto-spacing="" data-d-component="row" data-d-direction="row" data-d-justify="between"><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text">Integración Realtime</p><div class="Badge-_iijmO Badge-v4RzAb" data-color="success" data-size="sm" data-pill="" data-variant="soft" data-d-component="badge" data-d-weight="medium">Correcto</div></div><div class="Box-JYjgF4" data-d-auto-spacing="" data-d-component="row" data-d-direction="row" data-d-justify="between"><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text">Prueba de asignación</p><div class="Badge-_iijmO Badge-v4RzAb" data-color="success" data-size="sm" data-pill="" data-variant="soft" data-d-component="badge" data-d-weight="medium">Superada</div></div><div class="Box-JYjgF4" data-d-auto-spacing="" data-d-component="row" data-d-direction="row" data-d-justify="between"><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text">Prueba de vencimiento próximo</p><div class="Badge-_iijmO Badge-v4RzAb" data-color="success" data-size="sm" data-pill="" data-variant="soft" data-d-component="badge" data-d-weight="medium">Superada</div></div></div><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text">Las pruebas de asignación y vencimiento se ejecutaron en transacciones con <code class="Code-LNMR8q" data-d-component="code">ROLLBACK</code>, sin dejar registros temporales.</p><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text"><span class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text" data-d-default-strong="" data-d-inline=""><strong class="Emphasis-BHzYtQ">Pendiente de validación:</strong></span> pruebas con diferentes usuarios y roles, funcionamiento visual en navegador, compilación Vite y pruebas integrales.</p><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text">Tampoco se incorporaron todavía notificaciones por correo, SMS o aplicaciones externas. Los recordatorios se generan al consultar el centro de notificaciones, sin un cron programado.</p><h2 class="TextBase-kDAqPL Title-ij922C" data-d-text-flow="" data-d-component="title" data-d-size="lg" data-d-weight="semibold"><strong class="Emphasis-BHzYtQ">20.6. GitHub</strong></h2><div class="Box-JYjgF4" data-d-component="box" data-d-direction="col" data-d-has-border="" style="border: 1px solid var(--color-border); border-radius: var(--dil-radius-lg); --w-box-gutter-block-end: calc(var(--spacing, 0.25rem) * 3); --w-box-gutter-block-start: calc(var(--spacing, 0.25rem) * 3); --w-box-gutter-inline-end: calc(var(--spacing, 0.25rem) * 3); --w-box-gutter-inline-start: calc(var(--spacing, 0.25rem) * 3); padding-block: calc(var(--spacing, 0.25rem) * 3); padding-inline: calc(var(--spacing, 0.25rem) * 3); gap: calc(var(--spacing, 0.25rem) * 2);"><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text"><span class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text" data-d-default-strong="" data-d-inline=""><strong class="Emphasis-BHzYtQ">Repositorio Madre</strong></span></p><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text"><code class="Code-LNMR8q" data-d-component="code">gabrielgenri/madre</code></p><div class="Box-JYjgF4" data-d-align="center" data-d-auto-spacing="" data-d-component="row" data-d-direction="row" data-d-justify="between"><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text">Rama <code class="Code-LNMR8q" data-d-component="code">feat/paso-20-notificaciones</code></p><div class="Badge-_iijmO Badge-v4RzAb" data-color="success" data-size="sm" data-pill="" data-variant="soft" data-d-component="badge" data-d-weight="medium">Creada</div></div><div class="Divider-aIXBUs" data-d-component="divider" style="--divider-color: var(--color-border-subtle); --divider-size: 1px;"></div><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text"><span class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text" data-d-default-strong="" data-d-inline=""><strong class="Emphasis-BHzYtQ">Pull Request #1</strong></span></p><span class="Trigger-y4ejT1" data-d-component="popover-trigger" data-d-inline="" role="presentation" type="button" aria-haspopup="dialog" aria-expanded="false" data-state="closed"><a class="" rel="noopener noreferrer" target="_blank" href="https://github.com/gabrielgenri/madre/pull/1?utm_source=chatgpt.com"><span class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text" data-d-inline="" data-d-text-decoration="underline-dotted">Revisar implementación del PASO 20</span><span class="ms-1"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" class="InlineIcon-U9ZpYM" data-d-component="icon" data-d-inline="" style="display: inline-block; vertical-align: calc(0.5cap - 0.5em);"><path fill-rule="evenodd" d="M16.243 6.757a1 1 0 0 1 1 1v7.072a1 1 0 0 1-2 0v-4.657L8.464 16.95a1 1 0 0 1-1.414-1.414l6.778-6.779H9.172a1 1 0 0 1 0-2h7.07Z" clip-rule="evenodd"></path></svg></span></a></span><div class="Badge-_iijmO Badge-v4RzAb" data-color="warning" data-size="sm" data-pill="" data-variant="soft" data-d-component="badge" data-d-weight="medium">Abierto · Draft</div><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text" data-d-size="xs" style="color: var(--color-text-secondary);">No está fusionado con main. Se mantiene pendiente de las pruebas finales.</p></div><div class="Divider-aIXBUs" data-d-component="divider" style="--divider-color: var(--color-border); --divider-size: 1px;"></div><h2 class="TextBase-kDAqPL Title-ij922C" data-d-text-flow="" data-d-component="title" data-d-size="lg" data-d-weight="semibold"><strong class="Emphasis-BHzYtQ">Resultado del PASO 20</strong></h2><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text">Madre ya cuenta con la estructura de datos y el circuito de notificaciones internas incorporados en Supabase, además de la interfaz preparada en la rama de desarrollo.</p><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text">La siguiente mejora será conectar estas notificaciones con el resto del ecosistema, sin duplicar servicios ni crear infraestructura paralela.</p><h2 class="TextBase-kDAqPL Title-ij922C" data-d-text-flow="" data-d-component="title" data-d-size="lg" data-d-weight="semibold"><strong class="Emphasis-BHzYtQ">PASO 21 — PANEL DE CONTROL Y DASHBOARD DE GESTIÓN EDITORIAL</strong></h2><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text">Propongo avanzar con un tablero general para dirección y editores que permita visualizar:</p><ol class="List-bYalj1" data-d-component="list" data-d-marker="number" data-d-marker-layout="native" style="--d-list-row-gap: calc(var(--spacing, 0.25rem) * 0); gap: calc(var(--spacing, 0.25rem) * 0);"><li class="Item-EWTmaR" data-d-component="list-item" data-d-marker-layout="native"><div class="Content-DbD0Oj"><div class="Label-qdSQ_4" data-d-list-item-content=""><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text">Producciones activas.</p></div></div></li><li class="Item-EWTmaR" data-d-component="list-item" data-d-marker-layout="native"><div class="Content-DbD0Oj"><div class="Label-qdSQ_4" data-d-list-item-content=""><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text">Tareas pendientes y vencidas.</p></div></div></li><li class="Item-EWTmaR" data-d-component="list-item" data-d-marker-layout="native"><div class="Content-DbD0Oj"><div class="Label-qdSQ_4" data-d-list-item-content=""><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text">Producciones esperando revisión.</p></div></div></li><li class="Item-EWTmaR" data-d-component="list-item" data-d-marker-layout="native"><div class="Content-DbD0Oj"><div class="Label-qdSQ_4" data-d-list-item-content=""><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text">Distribución de trabajo por responsable.</p></div></div></li><li class="Item-EWTmaR" data-d-component="list-item" data-d-marker-layout="native"><div class="Content-DbD0Oj"><div class="Label-qdSQ_4" data-d-list-item-content=""><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text">Actividad editorial por período.</p></div></div></li><li class="Item-EWTmaR" data-d-component="list-item" data-d-marker-layout="native"><div class="Content-DbD0Oj"><div class="Label-qdSQ_4" data-d-list-item-content=""><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text">Tiempo promedio entre asignación y aprobación.</p></div></div></li><li class="Item-EWTmaR" data-d-component="list-item" data-d-marker-layout="native"><div class="Content-DbD0Oj"><div class="Label-qdSQ_4" data-d-list-item-content=""><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text">Producciones por prioridad y estado.</p></div></div></li><li class="Item-EWTmaR" data-d-component="list-item" data-d-marker-layout="native"><div class="Content-DbD0Oj"><div class="Label-qdSQ_4" data-d-list-item-content=""><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text">Alertas de rendimiento y carga de trabajo.</p></div></div></li></ol><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text"><span class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text" data-d-default-strong="" data-d-inline=""><strong class="Emphasis-BHzYtQ">Objetivo:</strong></span> que Madre no solo administre contenidos, sino que permita comprender y gestionar integralmente el funcionamiento de la redacción.</p><p class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text" data-d-size="xs" style="color: var(--color-text-secondary);">Continuidad documental: <div class="Box-JYjgF4" data-d-component="row" data-d-direction="row" data-d-has-width="" data-d-wrap="wrap" style="flex-shrink: 0; gap: calc(var(--spacing, 0.25rem) * 2); width: 100%;"><button class="Box-JYjgF4 Pressable-QEXFz7" data-d-auto-spacing="" data-d-component="pressable" data-d-direction="col" data-d-has-width="" aria-label="Hilo · Hilo · Crear Prompt Madre (1) (1).txt" type="button" style="width: 320px;"><div class="Box-JYjgF4 Card-ppx8r1" data-d-auto-spacing="" data-d-component="card" data-d-direction="col" data-d-has-width="" data-d-has-border="" data-d-variant="default" style="--smoothing-background-color: surface-primary; border: 1px solid var(--color-border); border-radius: var(--dil-radius-xl); --w-box-gutter-block-end: calc(var(--spacing, 0.25rem) * 2.5); --w-box-gutter-block-start: calc(var(--spacing, 0.25rem) * 2.5); --w-box-gutter-inline-end: calc(var(--spacing, 0.25rem) * 2.5); --w-box-gutter-inline-start: calc(var(--spacing, 0.25rem) * 2.5); padding-block: calc(var(--spacing, 0.25rem) * 2.5); padding-inline: calc(var(--spacing, 0.25rem) * 2.5); width: 100%;"><div class="Box-JYjgF4" data-d-align="center" data-d-component="row" data-d-direction="row" data-d-wrap="nowrap" style="flex-shrink: 0; gap: calc(var(--spacing, 0.25rem) * 2); min-width: 0px; width: 100%;"><div class="Box-JYjgF4" data-d-align="center" data-d-auto-spacing="" data-d-component="box" data-d-direction="col" data-d-has-width="" data-d-has-height="" data-d-justify="center" aria-hidden="true" inert="" style="flex: 0 0 auto; height: 40px; width: 40px;"><svg fill="currentColor" width="1em" height="1em" viewBox="0 0 24 24" data-d-component="icon" style="color: var(--color-text-secondary); font-size: 24px;"><g fill-rule="evenodd" clip-rule="evenodd"><path d="M8 10a1 1 0 0 1 1-1h6a1 1 0 0 1 0 2H9a1 1 0 0 1-1-1Zm0 4a1 1 0 0 1 1-1h4a1 1 0 1 1 0 2H9a1 1 0 0 1-1-1Z"></path><path d="M14.724 4.055c-.203-.049-.43-.055-1.212-.055H9.3c-.857 0-1.439 0-1.889.038-.438.035-.663.1-.819.18a2 2 0 0 0-.874.874c-.08.156-.145.38-.18.82C5.5 6.361 5.5 6.942 5.5 7.8v8.4c0 .857 0 1.439.038 1.889.035.438.1.663.18.819a2 2 0 0 0 .874.874c.156.08.38.145.819.18C7.861 20 8.443 20 9.3 20h5.4c.857 0 1.439 0 1.889-.038.438-.035.663-.1.819-.18a2 2 0 0 0 .874-.874c.08-.156.145-.38.18-.819.037-.45.038-1.032.038-1.889V8.988c0-.781-.006-1.009-.055-1.212-.05-.204-.13-.4-.24-.578-.109-.179-.265-.344-.818-.897l-1.188-1.188c-.553-.552-.718-.709-.897-.818a2.002 2.002 0 0 0-.578-.24ZM13.614 2c.635 0 1.114 0 1.577.11a4 4 0 0 1 1.156.48c.406.248.745.588 1.194 1.037l.072.072 1.188 1.188.072.072c.45.449.789.788 1.038 1.194a4 4 0 0 1 .479 1.156c.11.463.11.942.11 1.577v7.355c0 .805 0 1.47-.044 2.01-.046.563-.145 1.08-.392 1.565a4 4 0 0 1-1.748 1.748c-.485.247-1.002.346-1.564.392-.541.044-1.206.044-2.01.044H9.258c-.805 0-1.47 0-2.01-.044-.563-.046-1.08-.145-1.565-.392a4 4 0 0 1-1.748-1.748c-.247-.485-.346-1.002-.392-1.564-.044-.541-.044-1.206-.044-2.01V7.758c0-.805 0-1.47.044-2.01.046-.563.145-1.08.392-1.565a4 4 0 0 1 1.748-1.748c.485-.247 1.002-.346 1.564-.392C7.79 2 8.454 2 9.258 2h4.356Z"></path></g></svg></div><div class="Box-JYjgF4" data-d-component="col" data-d-direction="col" style="flex: 1 1 0%; gap: calc(var(--spacing, 0.25rem) * 0.5); min-width: 0px;"><span class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text" data-d-size="sm" data-d-weight="semibold" data-d-inline="" data-d-truncate="true" data-d-clamp-lines="true" style="-webkit-line-clamp: 1;"><strong class="Emphasis-BHzYtQ">Hilo · Hilo · Crear Prompt Madre (1) (1).txt</strong></span><span class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text" data-d-size="sm" data-d-inline="" data-d-truncate="true" data-d-clamp-lines="true" style="color: var(--color-text-secondary); -webkit-line-clamp: 1;">PASO 19: bandeja, asignaciones, prioridades y vencimientos.</span></div></div></div></button><button class="Box-JYjgF4 Pressable-QEXFz7" data-d-auto-spacing="" data-d-component="pressable" data-d-direction="col" data-d-has-width="" aria-label="Hilo · Hilo · Crear Prompt Madre (1) (1).txt" type="button" style="width: 320px;"><div class="Box-JYjgF4 Card-ppx8r1" data-d-auto-spacing="" data-d-component="card" data-d-direction="col" data-d-has-width="" data-d-has-border="" data-d-variant="default" style="--smoothing-background-color: surface-primary; border: 1px solid var(--color-border); border-radius: var(--dil-radius-xl); --w-box-gutter-block-end: calc(var(--spacing, 0.25rem) * 2.5); --w-box-gutter-block-start: calc(var(--spacing, 0.25rem) * 2.5); --w-box-gutter-inline-end: calc(var(--spacing, 0.25rem) * 2.5); --w-box-gutter-inline-start: calc(var(--spacing, 0.25rem) * 2.5); padding-block: calc(var(--spacing, 0.25rem) * 2.5); padding-inline: calc(var(--spacing, 0.25rem) * 2.5); width: 100%;"><div class="Box-JYjgF4" data-d-align="center" data-d-component="row" data-d-direction="row" data-d-wrap="nowrap" style="flex-shrink: 0; gap: calc(var(--spacing, 0.25rem) * 2); min-width: 0px; width: 100%;"><div class="Box-JYjgF4" data-d-align="center" data-d-auto-spacing="" data-d-component="box" data-d-direction="col" data-d-has-width="" data-d-has-height="" data-d-justify="center" aria-hidden="true" inert="" style="flex: 0 0 auto; height: 40px; width: 40px;"><svg fill="currentColor" width="1em" height="1em" viewBox="0 0 24 24" data-d-component="icon" style="color: var(--color-text-secondary); font-size: 24px;"><g fill-rule="evenodd" clip-rule="evenodd"><path d="M8 10a1 1 0 0 1 1-1h6a1 1 0 0 1 0 2H9a1 1 0 0 1-1-1Zm0 4a1 1 0 0 1 1-1h4a1 1 0 1 1 0 2H9a1 1 0 0 1-1-1Z"></path><path d="M14.724 4.055c-.203-.049-.43-.055-1.212-.055H9.3c-.857 0-1.439 0-1.889.038-.438.035-.663.1-.819.18a2 2 0 0 0-.874.874c-.08.156-.145.38-.18.82C5.5 6.361 5.5 6.942 5.5 7.8v8.4c0 .857 0 1.439.038 1.889.035.438.1.663.18.819a2 2 0 0 0 .874.874c.156.08.38.145.819.18C7.861 20 8.443 20 9.3 20h5.4c.857 0 1.439 0 1.889-.038.438-.035.663-.1.819-.18a2 2 0 0 0 .874-.874c.08-.156.145-.38.18-.819.037-.45.038-1.032.038-1.889V8.988c0-.781-.006-1.009-.055-1.212-.05-.204-.13-.4-.24-.578-.109-.179-.265-.344-.818-.897l-1.188-1.188c-.553-.552-.718-.709-.897-.818a2.002 2.002 0 0 0-.578-.24ZM13.614 2c.635 0 1.114 0 1.577.11a4 4 0 0 1 1.156.48c.406.248.745.588 1.194 1.037l.072.072 1.188 1.188.072.072c.45.449.789.788 1.038 1.194a4 4 0 0 1 .479 1.156c.11.463.11.942.11 1.577v7.355c0 .805 0 1.47-.044 2.01-.046.563-.145 1.08-.392 1.565a4 4 0 0 1-1.748 1.748c-.485.247-1.002.346-1.564.392-.541.044-1.206.044-2.01.044H9.258c-.805 0-1.47 0-2.01-.044-.563-.046-1.08-.145-1.565-.392a4 4 0 0 1-1.748-1.748c-.247-.485-.346-1.002-.392-1.564-.044-.541-.044-1.206-.044-2.01V7.758c0-.805 0-1.47.044-2.01.046-.563.145-1.08.392-1.565a4 4 0 0 1 1.748-1.748c.485-.247 1.002-.346 1.564-.392C7.79 2 8.454 2 9.258 2h4.356Z"></path></g></svg></div><div class="Box-JYjgF4" data-d-component="col" data-d-direction="col" style="flex: 1 1 0%; gap: calc(var(--spacing, 0.25rem) * 0.5); min-width: 0px;"><span class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text" data-d-size="sm" data-d-weight="semibold" data-d-inline="" data-d-truncate="true" data-d-clamp-lines="true" style="-webkit-line-clamp: 1;"><strong class="Emphasis-BHzYtQ">Hilo · Hilo · Crear Prompt Madre (1) (1).txt</strong></span><span class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text" data-d-size="sm" data-d-inline="" data-d-truncate="true" data-d-clamp-lines="true" style="color: var(--color-text-secondary); -webkit-line-clamp: 1;">PASO 14: versionado editorial y trazabilidad.</span></div></div></div></button><button class="Box-JYjgF4 Pressable-QEXFz7" data-d-auto-spacing="" data-d-component="pressable" data-d-direction="col" data-d-has-width="" aria-label="Hilo · Hilo · Crear Prompt Madre (1).txt" type="button" style="width: 320px;"><div class="Box-JYjgF4 Card-ppx8r1" data-d-auto-spacing="" data-d-component="card" data-d-direction="col" data-d-has-width="" data-d-has-border="" data-d-variant="default" style="--smoothing-background-color: surface-primary; border: 1px solid var(--color-border); border-radius: var(--dil-radius-xl); --w-box-gutter-block-end: calc(var(--spacing, 0.25rem) * 2.5); --w-box-gutter-block-start: calc(var(--spacing, 0.25rem) * 2.5); --w-box-gutter-inline-end: calc(var(--spacing, 0.25rem) * 2.5); --w-box-gutter-inline-start: calc(var(--spacing, 0.25rem) * 2.5); padding-block: calc(var(--spacing, 0.25rem) * 2.5); padding-inline: calc(var(--spacing, 0.25rem) * 2.5); width: 100%;"><div class="Box-JYjgF4" data-d-align="center" data-d-component="row" data-d-direction="row" data-d-wrap="nowrap" style="flex-shrink: 0; gap: calc(var(--spacing, 0.25rem) * 2); min-width: 0px; width: 100%;"><div class="Box-JYjgF4" data-d-align="center" data-d-auto-spacing="" data-d-component="box" data-d-direction="col" data-d-has-width="" data-d-has-height="" data-d-justify="center" aria-hidden="true" inert="" style="flex: 0 0 auto; height: 40px; width: 40px;"><svg fill="currentColor" width="1em" height="1em" viewBox="0 0 24 24" data-d-component="icon" style="color: var(--color-text-secondary); font-size: 24px;"><g fill-rule="evenodd" clip-rule="evenodd"><path d="M8 10a1 1 0 0 1 1-1h6a1 1 0 0 1 0 2H9a1 1 0 0 1-1-1Zm0 4a1 1 0 0 1 1-1h4a1 1 0 1 1 0 2H9a1 1 0 0 1-1-1Z"></path><path d="M14.724 4.055c-.203-.049-.43-.055-1.212-.055H9.3c-.857 0-1.439 0-1.889.038-.438.035-.663.1-.819.18a2 2 0 0 0-.874.874c-.08.156-.145.38-.18.82C5.5 6.361 5.5 6.942 5.5 7.8v8.4c0 .857 0 1.439.038 1.889.035.438.1.663.18.819a2 2 0 0 0 .874.874c.156.08.38.145.819.18C7.861 20 8.443 20 9.3 20h5.4c.857 0 1.439 0 1.889-.038.438-.035.663-.1.819-.18a2 2 0 0 0 .874-.874c.08-.156.145-.38.18-.819.037-.45.038-1.032.038-1.889V8.988c0-.781-.006-1.009-.055-1.212-.05-.204-.13-.4-.24-.578-.109-.179-.265-.344-.818-.897l-1.188-1.188c-.553-.552-.718-.709-.897-.818a2.002 2.002 0 0 0-.578-.24ZM13.614 2c.635 0 1.114 0 1.577.11a4 4 0 0 1 1.156.48c.406.248.745.588 1.194 1.037l.072.072 1.188 1.188.072.072c.45.449.789.788 1.038 1.194a4 4 0 0 1 .479 1.156c.11.463.11.942.11 1.577v7.355c0 .805 0 1.47-.044 2.01-.046.563-.145 1.08-.392 1.565a4 4 0 0 1-1.748 1.748c-.485.247-1.002.346-1.564.392-.541.044-1.206.044-2.01.044H9.258c-.805 0-1.47 0-2.01-.044-.563-.046-1.08-.145-1.565-.392a4 4 0 0 1-1.748-1.748c-.247-.485-.346-1.002-.392-1.564-.044-.541-.044-1.206-.044-2.01V7.758c0-.805 0-1.47.044-2.01.046-.563.145-1.08.392-1.565a4 4 0 0 1 1.748-1.748c.485-.247 1.002-.346 1.564-.392C7.79 2 8.454 2 9.258 2h4.356Z"></path></g></svg></div><div class="Box-JYjgF4" data-d-component="col" data-d-direction="col" style="flex: 1 1 0%; gap: calc(var(--spacing, 0.25rem) * 0.5); min-width: 0px;"><span class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text" data-d-size="sm" data-d-weight="semibold" data-d-inline="" data-d-truncate="true" data-d-clamp-lines="true" style="-webkit-line-clamp: 1;"><strong class="Emphasis-BHzYtQ">Hilo · Hilo · Crear Prompt Madre (1).txt</strong></span><span class="TextBase-kDAqPL Text-dOmvsS" data-d-text-flow="" data-d-component="text" data-d-size="sm" data-d-inline="" data-d-truncate="true" data-d-clamp-lines="true" style="color: var(--color-text-secondary); -webkit-line-clamp: 1;">Arquitectura modular y servicios compartidos de Madre.</span></div></div></div></button></div></p></div></div></div><div class="contents"></div></div></div></div></div>
+
+        
+      </div>
+
+    </div>
+  </section>
+
+</main>
+
+<script>
+  function descargarPDF(){
+    const elemento = document.getElementById('contenido');
+    const opciones = {
+      margin:       [12, 12, 14, 12],
+      filename:     'MADRE-prompt-maestro.pdf',
+      image:        { type: 'jpeg', quality: 0.98 },
+      html2canvas:  { scale: 2, useCORS: true, scrollY: 0 },
+      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
+      pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
+    };
+    html2pdf().set(opciones).from(elemento).save();
+  }
+</script>
+
+</body>
+</html>
