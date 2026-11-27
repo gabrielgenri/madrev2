@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Guía de implementación y uso de MonitorV3.2 para La Rioja.">
+  <title>Ayuda · MonitorV3.2</title>
+  <style>
+    :root{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:#172033;background:#f4f7fb;line-height:1.6}*{box-sizing:border-box}body{margin:0}header{background:#fff;border-bottom:1px solid #dce4ef;padding:1rem}header div,main{max-width:900px;margin:auto}a{color:#1d4ed8}header a{font-weight:700;text-decoration:none}main{padding:2rem 1rem 4rem}h1{line-height:1.2}h2{margin-top:2rem}section{background:white;border:1px solid #dce4ef;border-radius:14px;padding:1rem 1.25rem;margin:1rem 0}code{background:#edf2f8;padding:.12rem .35rem;border-radius:4px;overflow-wrap:anywhere}.note{border-left:4px solid #2563eb;padding:.5rem 1rem;background:#eff6ff}li{margin:.4rem 0}@media(min-width:700px){section{padding:1.35rem 1.6rem}}
+  </style>
+</head>
+<body>
+  <header><div><a href="../">← Volver a MonitorV3.2</a></div></header>
+  <main>
+    <h1>Ayuda de MonitorV3.2 y Biblioteca riojana</h1>
+    <p>Guía para implementar y utilizar el monitor de noticias de La Rioja y vincularlo con la Biblioteca riojana.</p>
+    <section>
+      <h2>Publicación en GitHub Pages</h2>
+      <ol>
+        <li>Conservá la estructura de carpetas: <code>index.html</code>, <code>data/</code>, <code>scripts/</code> y <code>ayuda/</code>.</li>
+        <li>En el repositorio <code>madrev2</code>, la app debe quedar dentro de <code>monitor/</code>. La dirección esperada es <code>/madrev2/monitor/</code>.</li>
+        <li>En la configuración de Pages, publicá desde la rama <code>main</code> y la carpeta raíz del repositorio. La página principal del repositorio debe conservarse.</li>
+        <li>Esperá a que termine el despliegue y abrí <a href="../">la app</a>. Los datos se leen con rutas relativas desde <code>monitor/data/</code>.</li>
+      </ol>
+      <p class="note">El flujo de GitHub Actions incluido en <code>.github/workflows/</code> está copiado dentro de esta carpeta. GitHub solo ejecuta flujos ubicados en el <code>.github/workflows/</code> de la raíz del repositorio; para automatizar la recolección en <code>madrev2</code>, hay que instalar allí un flujo adaptado a las rutas <code>monitor/</code>.</p>
+    </section>
+    <section>
+      <h2>Biblioteca riojana: unir actualidad y fichas</h2>
+      <p>La Biblioteca trabaja con fichas explicativas atemporales; Monitor reúne noticias y documentos de actualidad. El panel de integración permite consultar las noticias desde la Biblioteca y usar una nota como referencia para preparar un borrador de contexto.</p>
+      <ol>
+        <li>Copiá <code>integracion-biblioteca/monitor-biblioteca.js</code> al repositorio de El Independiente, en <code>ecosistema/assets/js/biblioteca/</code>.</li>
+        <li>Agregá en <code>ecosistema/biblioteca/index.html</code>, después del módulo de Biblioteca, <code>&lt;script type="module" src="../assets/js/biblioteca/monitor-biblioteca.js"&gt;&lt;/script&gt;</code>.</li>
+        <li>Publicá el repositorio. La pestaña <strong>Monitor</strong> mostrará búsqueda, filtros temáticos y el enlace a cada noticia original.</li>
+        <li>Con sesión editorial activa, <strong>Preparar borrador de contexto</strong> crea una ficha en estado borrador con el título de trabajo y la referencia. Completá la explicación atemporal y verificá los datos antes de enviarla a revisión.</li>
+      </ol>
+      <p class="note">El módulo lee noticias desde el JSON público de Monitor y no escribe en Monitor. Las categorías se asignan como sugerencia; revisá la categoría, el departamento y el contenido antes de avanzar el estado editorial.</p>
+      <p>La guía detallada está en <a href="../integracion-biblioteca/README.md">Integración de Monitor en Biblioteca riojana</a>.</p>
+    </section>
+    <section>
+      <h2>Fuentes técnicas incorporadas</h2>
+      <ul>
+        <li><strong>MonitorV1:</strong> arquitectura del crawler, RSS y archivos; el catálogo de sitios sirve como antecedente del esquema actual.</li>
+        <li><strong>MonitorV2:</strong> catálogo de 53 sitios, límites de ejecución y limpieza de procesos. El workflow V3.2 del ZIP mantiene su propio cron de cuatro horarios UTC.</li>
+        <li><strong>MonitorV3.2:</strong> los JSON y el recolector actuales son la base operativa del panel integrado.</li>
+        <li><strong>RSSv3:</strong> aporta taxonomías y extracción completa como referencias; el panel muestra noticias y fuentes sin trasladar síntesis de actualidad a fichas atemporales.</li>
+        <li><strong>README y dependencias:</strong> explican la estructura local y las bibliotecas Python requeridas.</li>
+      </ul>
+    </section>
+    <section>
+      <h2>Uso de la aplicación</h2>
+      <ul>
+        <li><strong>Notas:</strong> buscá por título, palabra clave o fuente; filtrá por taxonomía y abrí la noticia original.</li>
+        <li><strong>Fuentes:</strong> consultá el estado de cada sitio y sus notas. Podés agregar, editar, pausar o eliminar fuentes.</li>
+        <li><strong>Vinculado:</strong> revisá contenidos relacionados entre distintas notas.</li>
+        <li><strong>Etiquetas:</strong> explorá las taxonomías y etiquetas más frecuentes.</li>
+        <li><strong>Actualizar:</strong> vuelve a cargar los JSON publicados. Los cambios del catálogo hechos desde el navegador se guardan en ese navegador.</li>
+      </ul>
+      <p class="note">Los cambios de fuentes se almacenan en <code>localStorage</code> del dispositivo y navegador actuales; no se sincronizan con GitHub ni con otros usuarios. Usá «Exportar JSON» para guardar una copia del catálogo local.</p>
+    </section>
+    <section>
+      <h2>Estructura y mantenimiento</h2>
+      <ul>
+        <li><code>data/monitor_v3_fuentes.json</code>: catálogo y configuración de fuentes.</li>
+        <li><code>data/monitor_v3_noticias.json</code>: noticias, contenidos vinculados y archivos detectados.</li>
+        <li><code>scripts/monitor_v3_recolector.py</code>: recolector RSS/Atom y rastreo web.</li>
+        <li><code>requirements.txt</code>: dependencias Python del recolector.</li>
+      </ul>
+      <p>Para cambiar datos publicados, actualizá los JSON en el repositorio y esperá el nuevo despliegue de Pages. Para probar la interfaz en local, serví la carpeta con un servidor HTTP; abrir el HTML directamente puede impedir la carga de los JSON por las restricciones del navegador.</p>
+    </section>
+  </main>
+</body>
+</html>

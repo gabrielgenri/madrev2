@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MonitorV3.2</title>
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --surface: #ffffff;
+      --border: #e2e8f0;
+      --text: #0f172a;
+      --muted: #64748b;
+      --primary: #1d4ed8;
+      --primary-soft: #eff6ff;
+      --ok: #15803d;
+      --err: #b91c1c;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.45;
+    }
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 16px;
+    }
+    .topbar {
+      max-width: 1120px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .brand h1 {
+      margin: 0;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .badge {
+      background: var(--primary-soft);
+      color: var(--primary);
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 999px;
+    }
+    .subtitle {
+      margin: 2px 0 0;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+    .btn {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      padding: 7px 12px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+    .btn-sm { padding: 5px 9px; font-size: 0.76rem; }
+    .tabs {
+      max-width: 1120px;
+      margin: 10px auto 0;
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+    .tab {
+      white-space: nowrap;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--muted);
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .tab.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+    main {
+      max-width: 1120px;
+      margin: 16px auto 56px;
+      padding: 0 16px;
+    }
+    .alert {
+      background: #fef3c7;
+      border: 1px solid #f59e0b;
+      color: #92400e;
+      padding: 10px 14px;
+      border-radius: var(--radius);
+      font-size: 0.84rem;
+      margin-bottom: 14px;
+      display: none;
+    }
+    .kpis {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .kpi {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 10px 12px;
+    }
+    .kpi strong {
+      display: block;
+      font-size: 1.25rem;
+      color: var(--primary);
+    }
+    .kpi span {
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 14px;
+      align-items: center;
+    }
+    .search-box {
+      flex: 1 1 220px;
+      padding: 7px 11px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.84rem;
+      background: var(--surface);
+    }
+    .pill {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 0.76rem;
+      cursor: pointer;
+    }
+    .pill.active {
+      background: var(--text);
+      color: #fff;
+      border-color: var(--text);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+      gap: 14px;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .card img {
+      width: 100%;
+      height: 165px;
+      object-fit: cover;
+      background: #e2e8f0;
+    }
+    .card-body { padding: 14px; }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+      font-size: 0.74rem;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .source-link {
+      color: var(--primary);
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: underline;
+      background: none;
+      border: none;
+      padding: 0;
+      font-size: inherit;
+    }
+    .card h3 {
+      margin: 0 0 8px;
+      font-size: 0.98rem;
+    }
+    .card p {
+      margin: 0 0 10px;
+      font-size: 0.84rem;
+      color: #334155;
+    }
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-bottom: 10px;
+    }
+    .tag {
+      background: #f1f5f9;
+      color: #334155;
+      font-size: 0.7rem;
+      padding: 2px 7px;
+      border-radius: 6px;
+    }
+    .card-actions {
+      padding: 10px 14px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      background: #fafbfc;
+    }
+    .empty {
+      background: var(--surface);
+      border: 1px dashed var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      text-align: center;
+      color: var(--muted);
+    }
+    .crud-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+      margin-bottom: 16px;
+    }
+    .crud-form {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .crud-form input, .crud-form select {
+      width: 100%;
+      padding: 7px 10px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.82rem;
+    }
+    .status-ok { color: var(--ok); font-weight: 700; }
+    .status-err { color: var(--err); font-weight: 700; }
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.55);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 60;
+      padding: 16px;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal-box {
+      width: min(760px, 96vw);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 20px 45px rgba(15, 23, 42, 0.28);
+    }
+    .modal-head {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+    .modal-body {
+      padding: 16px;
+      max-height: 75vh;
+      overflow-y: auto;
+    }
+    .modal-nota-card {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 14px;
+      margin-bottom: 14px;
+    }
+    .modal-nota-card:last-child { border-bottom: none; margin-bottom: 0; }
+    .toast {
+      position: fixed;
+      bottom: 18px;
+      right: 18px;
+      background: #0f172a;
+      color: #fff;
+      padding: 9px 14px;
+      border-radius: 10px;
+      font-size: 0.82rem;
+      z-index: 80;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      pointer-events: none;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="topbar">
+      <div class="brand">
+        <h1>MonitorV3.2</h1>
+        <p class="subtitle" id="subtituloEstado">Cargando noticias...</p>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <a class="btn" href="./ayuda/">Ayuda</a>
+        <button class="btn" id="btnRecargar" type="button">Actualizar</button>
+      </div>
+    </div>
+    <nav class="tabs" id="navTabs">
+      <button class="tab active" data-tab="notas" type="button">Notas</button>
+      <button class="tab" data-tab="fuentes" type="button">Fuentes</button>
+      <button class="tab" data-tab="vinculados" type="button">Vinculado</button>
+      <button class="tab" data-tab="taxonomias" type="button">Etiquetas</button>
+    </nav>
+  </header>
+
+  <main>
+    <div class="alert" id="alertaSistema"></div>
+
+    <section class="kpis">
+      <div class="kpi"><strong id="kpiNotas">0</strong><span>Notas consolidadas</span></div>
+      <div class="kpi"><strong id="kpiFuentes">0/0</strong><span>Fuentes activas</span></div>
+      <div class="kpi"><strong id="kpiRss">0</strong><span>Canales RSS directos</span></div>
+      <div class="kpi"><strong id="kpiVinculados">0</strong><span>Contenidos vinculados</span></div>
+      <div class="kpi"><strong id="kpiArchivos">0</strong><span>Archivos detectados</span></div>
+    </section>
+
+    <section class="filters" id="barraFiltros">
+      <input type="search" id="inputBusqueda" class="search-box" placeholder="Buscar por título, palabra clave o fuente..." />
+      <div id="pillsTaxonomia" style="display:flex; flex-wrap:wrap; gap:6px;"></div>
+    </section>
+
+    <section id="vistaContenido"></section>
+  </main>
+
+  <div class="modal-backdrop" id="modalFuente" role="dialog" aria-modal="true" aria-labelledby="modalFuenteTitulo">
+    <div class="modal-box">
+      <div class="modal-head">
+        <div>
+          <strong id="modalFuenteTitulo">Canal</strong>
+          <div id="modalFuenteSubtitulo" style="font-size:0.78rem; color:var(--muted);"></div>
+        </div>
+        <div style="display:flex; gap:6px; align-items:center;">
+          <a class="btn btn-sm" id="modalBtnWeb" href="#" target="_blank" rel="noopener noreferrer">Web</a>
+          <a class="btn btn-sm" id="modalBtnRss" href="#" target="_blank" rel="noopener noreferrer">RSS</a>
+          <button class="btn btn-sm" id="btnCerrarModal" type="button">Cerrar</button>
+        </div>
+      </div>
+      <div class="modal-body" id="modalFuenteCuerpo"></div>
+    </div>
+  </div>
+
+  <div class="toast" id="toastAviso" role="status" aria-live="polite"></div>
+
+  <script>
+    const STORAGE_KEY = "monitor_v3_fuentes_local";
+    const copyRegistry = new Map();
+
+    const state = {
+      tab: "notas",
+      taxonomia: "Todas",
+      categoria: "Todas",
+      busqueda: "",
+      editIndex: null,
+      fuentesConfig: { sitios: [], taxonomias: [] },
+      noticiasData: { notas: [], contenidos_vinculados: [], archivos_detectados: [] }
+    };
+
+    function escaparHtml(valor) {
+      return String(valor ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function registrarTextoCopia(clave, texto) {
+      copyRegistry.set(String(clave), String(texto ?? ""));
+      return String(clave);
+    }
+
+    function mostrarToast(mensaje) {
+      const el = document.getElementById("toastAviso");
+      if (!el) return;
+      el.textContent = mensaje;
+      el.classList.add("show");
+      clearTimeout(mostrarToast._timer);
+      mostrarToast._timer = setTimeout(() => el.classList.remove("show"), 2200);
+    }
+
+    async function copiarTexto(texto, etiqueta = "Contenido") {
+      const contenido = String(texto ?? "").trim();
+      if (!contenido) {
+        mostrarToast("No hay contenido para copiar");
+        return false;
+      }
+
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(contenido);
+          mostrarToast(`${etiqueta} copiado al portapapeles`);
+          return true;
+        }
+      } catch (_) {}
+
+      try {
+        const area = document.createElement("textarea");
+        area.value = contenido;
+        area.setAttribute("readonly", "");
+        area.style.position = "fixed";
+        area.style.top = "-9999px";
+        area.style.left = "-9999px";
+        document.body.appendChild(area);
+        area.focus();
+        area.select();
+        area.setSelectionRange(0, area.value.length);
+        const ok = document.execCommand("copy");
+        document.body.removeChild(area);
+        if (ok) {
+          mostrarToast(`${etiqueta} copiado al portapapeles`);
+          return true;
+        }
+      } catch (_) {}
+
+      mostrarToast("No se pudo copiar automáticamente");
+      return false;
+    }
+
+    function abrirModalFuente(fuenteRef) {
+      const sitios = state.fuentesConfig.sitios || [];
+      const notas = state.noticiasData.notas || [];
+      const refNorm = String(fuenteRef ?? "").trim().toLowerCase();
+
+      const fuente = sitios.find(
+        (s) => String(s.id || "").toLowerCase() === refNorm || String(s.nombre || "").trim().toLowerCase() === refNorm
+      ) || {
+        id: refNorm || "fuente",
+        nombre: String(fuenteRef || "Canal"),
+        categoria: "Fuente",
+        localidad: "La Rioja",
+        url_web: "",
+        url_rss: "",
+        ultimo_error: ""
+      };
+
+      const notasCanal = notas.filter((n) => {
+        const matchId = fuente.id && String(n.fuente_id || "").toLowerCase() === String(fuente.id).toLowerCase();
+        const matchNombre = String(n.fuente_nombre || "").trim().toLowerCase() === String(fuente.nombre || "").trim().toLowerCase();
+        return matchId || matchNombre;
+      });
+
+      const modal = document.getElementById("modalFuente");
+      document.getElementById("modalFuenteTitulo").textContent = fuente.nombre;
+      document.getElementById("modalFuenteSubtitulo").textContent =
+        `${fuente.categoria || "Fuente"} · ${fuente.localidad || "La Rioja"} · ${notasCanal.length} notas`;
+
+      const btnWeb = document.getElementById("modalBtnWeb");
+      const btnRss = document.getElementById("modalBtnRss");
+
+      if (fuente.url_web) {
+        btnWeb.style.display = "inline-flex";
+        btnWeb.href = fuente.url_web;
+      } else {
+        btnWeb.style.display = "none";
+      }
+
+      if (fuente.url_rss) {
+        btnRss.style.display = "inline-flex";
+        btnRss.href = fuente.url_rss;
+      } else {
+        btnRss.style.display = "none";
+      }
+
+      const cuerpoEl = document.getElementById("modalFuenteCuerpo");
+      if (!notasCanal.length) {
+        cuerpoEl.innerHTML = `
+          <div class="empty">
+            <p>Aún no hay notas consolidadas para <strong>${escaparHtml(fuente.nombre)}</strong>.</p>
+            ${fuente.ultimo_error ? `<p style="font-size:0.78rem;">Último estado: ${escaparHtml(fuente.ultimo_error)}</p>` : ""}
+          </div>
+        `;
+      } else {
+        cuerpoEl.innerHTML = notasCanal.map((n, idx) => {
+          const payload = `${n.titulo || ""}\nFuente: ${fuente.nombre}\nTaxonomía: ${n.taxonomia || ""}\n\n${n.copete || ""}\n\n${n.cuerpo || ""}\n\n${n.url || ""}`;
+          const key = registrarTextoCopia(`modal_${fuente.id}_${idx}`, payload);
+          return `
+            <article class="modal-nota-card">
+              <div class="meta">
+                <span class="badge">${escaparHtml(n.taxonomia || "General")}</span>
+                <span>${escaparHtml(n.fecha || "")}</span>
+              </div>
+              <h4 style="margin:4px 0 6px;">${escaparHtml(n.titulo || "(Sin título)")}</h4>
+              ${n.imagen ? `<img src="${escaparHtml(n.imagen)}" alt="" loading="lazy" style="width:100%;max-height:220px;object-fit:cover;border-radius:8px;margin-bottom:8px;" onerror="this.style.display='none'">` : ""}
+              ${n.copete ? `<p style="font-weight:600;color:#1e293b;">${escaparHtml(n.copete)}</p>` : ""}
+              ${n.cuerpo ? `<p style="white-space:pre-line;font-size:0.84rem;">${escaparHtml(n.cuerpo)}</p>` : ""}
+              <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
+                ${n.url ? `<a class="btn btn-sm btn-primary" href="${escaparHtml(n.url)}" target="_blank" rel="noopener noreferrer">Abrir nota</a>` : ""}
+                <button class="btn btn-sm" type="button" data-copy-key="${escaparHtml(key)}">Copiar contenido</button>
+              </div>
+            </article>
+          `;
+        }).join("");
+      }
+
+      modal.classList.add("open");
+      document.body.style.overflow = "hidden";
+    }
+
+    function cerrarModalFuente() {
+      const modal = document.getElementById("modalFuente");
+      modal.classList.remove("open");
+      document.body.style.overflow = "";
+    }
+
+    async function cargarDatos() {
+      const avisos = [];
+      let fuentesJson = { sitios: [], taxonomias: [] };
+      let noticiasJson = { notas: [], contenidos_vinculados: [], archivos_detectados: [] };
+
+      try {
+        const resF = await fetch(`./data/monitor_v3_fuentes.json?v=${Date.now()}`, { cache: "no-store" });
+        if (!resF.ok) throw new Error(`HTTP ${resF.status}`);
+        fuentesJson = await resF.json();
+      } catch (e) {
+        avisos.push(`No se pudo cargar data/monitor_v3_fuentes.json (${e.message}).`);
+      }
+
+      try {
+        const resN = await fetch(`./data/monitor_v3_noticias.json?v=${Date.now()}`, { cache: "no-store" });
+        if (!resN.ok) throw new Error(`HTTP ${resN.status}`);
+        noticiasJson = await resN.json();
+      } catch (e) {
+        avisos.push(`No se pudo cargar data/monitor_v3_noticias.json (${e.message}).`);
+      }
+
+      const localOverride = localStorage.getItem(STORAGE_KEY);
+      if (localOverride) {
+        try {
+          const parsed = JSON.parse(localOverride);
+          if (Array.isArray(parsed.sitios) && parsed.sitios.length) {
+            fuentesJson.sitios = parsed.sitios;
+          }
+        } catch (_) {}
+      }
+
+      state.fuentesConfig = fuentesJson;
+      state.noticiasData = noticiasJson;
+
+      if ((noticiasJson.notas || []).length === 0 && avisos.length === 0) {
+        avisos.push("El catálogo está cargado, pero aún no hay notas recolectadas. Ejecuta el workflow en GitHub Actions (Run workflow).");
+      }
+
+      const alertaEl = document.getElementById("alertaSistema");
+      if (avisos.length) {
+        alertaEl.style.display = "block";
+        alertaEl.textContent = avisos.join(" ");
+      } else {
+        alertaEl.style.display = "none";
+      }
+
+      actualizarKPIs();
+      renderFiltrosTaxonomia();
+      renderVista();
+    }
+
+    function actualizarKPIs() {
+      const sitios = state.fuentesConfig.sitios || [];
+      const activas = sitios.filter((s) => s.activo !== false);
+      const rss = activas.filter((s) => s.usar_rss && s.url_rss);
+      const notas = state.noticiasData.notas || [];
+      const vinculados = state.noticiasData.contenidos_vinculados || [];
+      const archivos = state.noticiasData.archivos_detectados || [];
+
+      document.getElementById("kpiNotas").textContent = notas.length;
+      document.getElementById("kpiFuentes").textContent = `${activas.length}/${sitios.length}`;
+      document.getElementById("kpiRss").textContent = rss.length;
+      document.getElementById("kpiVinculados").textContent = vinculados.length;
+      document.getElementById("kpiArchivos").textContent = archivos.length;
+
+      const act = state.noticiasData.actualizado_local || state.fuentesConfig.actualizado || "Sin fecha";
+      document.getElementById("subtituloEstado").textContent =
+        `${activas.length} fuentes activas · ${notas.length} notas · Act: ${act}`;
+    }
+
+    function renderFiltrosTaxonomia() {
+      const cont = document.getElementById("pillsTaxonomia");
+      const taxes = ["Todas", ...(state.fuentesConfig.taxonomias || [
+        "Política y Gestión",
+        "Economía, Finanzas y Producción",
+        "Ciencia, Tecnología y Educación",
+        "Sociedad, Salud y Justicia",
+        "Normativa y Datos Oficiales",
+        "Cultura y Deportes"
+      ])];
+
+      cont.innerHTML = taxes.map((t) =>
+        `<button class="pill ${state.taxonomia === t ? "active" : ""}" data-tax="${escaparHtml(t)}" type="button">${escaparHtml(t)}</button>`
+      ).join("");
+
+      cont.querySelectorAll(".pill").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          state.taxonomia = btn.dataset.tax;
+          renderFiltrosTaxonomia();
+          renderVista();
+        });
+      });
+    }
+
+    function filtrarNotas() {
+      const q = state.busqueda.trim().toLowerCase();
+      return (state.noticiasData.notas || []).filter((n) => {
+        const okTax = state.taxonomia === "Todas" || n.taxonomia === state.taxonomia;
+        const okQ = !q || [n.titulo, n.copete, n.cuerpo, n.fuente_nombre, ...(n.etiquetas || [])]
+          .join(" ").toLowerCase().includes(q);
+        return okTax && okQ;
+      });
+    }
+
+    function guardarLocal() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state.fuentesConfig));
+    }
+
+    function renderVista() {
+      const cont = document.getElementById("vistaContenido");
+      const barra = document.getElementById("barraFiltros");
+      barra.style.display = ["notas", "vinculados", "taxonomias"].includes(state.tab) ? "flex" : "none";
+
+      if (state.tab === "notas") {
+        const notas = filtrarNotas();
+        if (!notas.length) {
+          cont.innerHTML = `<div class="empty">No hay notas que coincidan con el filtro actual.</div>`;
+          return;
+        }
+        cont.innerHTML = `<div class="grid">${notas.map((n, idx) => {
+          const payload = `${n.titulo || ""}\nFuente: ${n.fuente_nombre || ""}\nTaxonomía: ${n.taxonomia || ""}\n\n${n.copete || ""}\n\n${n.cuerpo || ""}\n\n${n.url || ""}`;
+          const copyKey = registrarTextoCopia(`nota_${idx}`, payload);
+          return `
+            <article class="card">
+              <div>
+                ${n.imagen ? `<img src="${escaparHtml(n.imagen)}" alt="" loading="lazy" onerror="this.style.display='none'">` : ""}
+                <div class="card-body">
+                  <div class="meta">
+                    <button class="source-link" type="button" data-open-fuente="${escaparHtml(n.fuente_id || n.fuente_nombre)}">${escaparHtml(n.fuente_nombre)}</button>
+                    <span>·</span>
+                    <span>${escaparHtml(n.taxonomia)}</span>
+                  </div>
+                  <h3>${escaparHtml(n.titulo)}</h3>
+                  <p>${escaparHtml((n.copete || n.cuerpo || "").slice(0, 220))}${(n.copete || n.cuerpo || "").length > 220 ? "..." : ""}</p>
+                  <div class="tags">${(n.etiquetas || []).map((t) => `<span class="tag">#${escaparHtml(t)}</span>`).join("")}</div>
+                </div>
+              </div>
+              <div class="card-actions">
+                <a class="btn btn-sm btn-primary" href="${escaparHtml(n.url)}" target="_blank" rel="noopener noreferrer">Abrir nota</a>
+                <button class="btn btn-sm" type="button" data-open-fuente="${escaparHtml(n.fuente_id || n.fuente_nombre)}">Ver canal</button>
+                <button class="btn btn-sm" type="button" data-copy-key="${escaparHtml(copyKey)}">Copiar contenido</button>
+              </div>
+            </article>
+          `;
+        }).join("")}</div>`;
+        return;
+      }
+
+      if (state.tab === "fuentes") {
+        const sitios = state.fuentesConfig.sitios || [];
+        const cats = ["Todas", ...new Set(sitios.map((s) => s.categoria))];
+        const editItem = state.editIndex !== null ? sitios[state.editIndex] : null;
+        const filtrados = sitios.filter((s) => state.categoria === "Todas" || s.categoria === state.categoria);
+
+        cont.innerHTML = `
+          <div class="crud-panel">
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+              <strong>${editItem ? `Editando fuente: ${escaparHtml(editItem.nombre)}` : "Alta / Gestión de canales RSS y fuentes (CRUD)"}</strong>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <button class="btn btn-sm btn-primary" id="btnExportarJson" type="button">Exportar monitor_v3_fuentes.json</button>
+                <button class="btn btn-sm" id="btnResetLocal" type="button">Restaurar catálogo base</button>
+              </div>
+            </div>
+            <form class="crud-form" id="formSitioCrud">
+              <input type="text" id="crudNombre" placeholder="Nombre de la fuente *" value="${escaparHtml(editItem?.nombre || "")}" required />
+              <select id="crudCategoria">
+                ${["Medios de Comunicación", "Entidades e Instituciones Gubernamentales", "Universidades", "Centros de Investigación"].map((c) =>
+                  `<option value="${escaparHtml(c)}" ${editItem?.categoria === c ? "selected" : ""}>${escaparHtml(c)}</option>`
+                ).join("")}
+              </select>
+              <input type="text" id="crudLocalidad" placeholder="Localidad" value="${escaparHtml(editItem?.localidad || "La Rioja Capital")}" />
+              <input type="url" id="crudWeb" placeholder="URL Web (https://...) *" value="${escaparHtml(editItem?.url_web || "")}" required />
+              <input type="url" id="crudRss" placeholder="URL RSS / Atom (opcional)" value="${escaparHtml(editItem?.url_rss || "")}" />
+              <div style="display:flex;gap:6px;">
+                <button type="submit" class="btn btn-primary">${editItem ? "Guardar cambios" : "Agregar fuente"}</button>
+                ${editItem ? `<button type="button" class="btn" id="btnCancelarEdicion">Cancelar</button>` : ""}
+              </div>
+            </form>
+          </div>
+
+          <div class="filters">
+            ${cats.map((c) =>
+              `<button class="pill ${state.categoria === c ? "active" : ""}" data-cat="${escaparHtml(c)}" type="button">${escaparHtml(c)}</button>`
+            ).join("")}
+          </div>
+
+          <div class="grid">${filtrados.map((s) => {
+            const realIdx = sitios.indexOf(s);
+            return `
+              <article class="card">
+                <div class="card-body">
+                  <div class="meta">
+                    <span class="badge">${escaparHtml(s.categoria)}</span>
+                    <span>${escaparHtml(s.localidad || "La Rioja")}</span>
+                  </div>
+                  <h3>
+                    <button class="source-link" type="button" data-open-fuente="${escaparHtml(s.id)}">${escaparHtml(s.nombre)}</button>
+                  </h3>
+                  <p style="font-size:0.8rem;color:var(--muted);">${escaparHtml(s.subtipo || "")} · ${s.usar_rss ? "RSS + Crawl" : "Crawl HTML"} · ${s.activo !== false ? "Activa" : "Pausada"}</p>
+                  <div class="meta">
+                    <span class="${s.estado_ultima_corrida === "error" ? "status-err" : "status-ok"}">
+                      Estado: ${escaparHtml(s.estado_ultima_corrida || "pendiente")} ${s.http_status ? `(HTTP ${escaparHtml(s.http_status)})` : ""}
+                    </span>
+                    <span>· Notas: ${escaparHtml(s.notas_recolectadas ?? 0)}</span>
+                  </div>
+                </div>
+                <div class="card-actions">
+                  <button class="btn btn-sm btn-primary" type="button" data-open-fuente="${escaparHtml(s.id)}">Ver noticias</button>
+                  <a class="btn btn-sm" href="${escaparHtml(s.url_web)}" target="_blank" rel="noopener noreferrer">Web</a>
+                  ${s.url_rss ? `<a class="btn btn-sm" href="${escaparHtml(s.url_rss)}" target="_blank" rel="noopener noreferrer">RSS</a>` : ""}
+                  <button class="btn btn-sm" type="button" data-edit-idx="${realIdx}">Editar</button>
+                  <button class="btn btn-sm" type="button" data-toggle-idx="${realIdx}">${s.activo !== false ? "Pausar" : "Activar"}</button>
+                  <button class="btn btn-sm" type="button" data-del-idx="${realIdx}">Eliminar</button>
+                </div>
+              </article>
+            `;
+          }).join("")}</div>
+        `;
+
+        cont.querySelectorAll("[data-cat]").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            state.categoria = btn.dataset.cat;
+            renderVista();
+          });
+        });
+
+        cont.querySelectorAll("[data-edit-idx]").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            state.editIndex = Number(btn.dataset.editIdx);
+            renderVista();
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          });
+        });
+
+        cont.querySelectorAll("[data-toggle-idx]").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const idx = Number(btn.dataset.toggleIdx);
+            state.fuentesConfig.sitios[idx].activo = !(state.fuentesConfig.sitios[idx].activo !== false);
+            guardarLocal();
+            actualizarKPIs();
+            renderVista();
+          });
+        });
+
+        cont.querySelectorAll("[data-del-idx]").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const idx = Number(btn.dataset.delIdx);
+            state.fuentesConfig.sitios.splice(idx, 1);
+            if (state.editIndex === idx) state.editIndex = null;
+            guardarLocal();
+            actualizarKPIs();
+            renderVista();
+          });
+        });
+
+        document.getElementById("formSitioCrud").addEventListener("submit", (e) => {
+          e.preventDefault();
+          const nombre = document.getElementById("crudNombre").value.trim();
+          const categoria = document.getElementById("crudCategoria").value;
+          const localidad = document.getElementById("crudLocalidad").value.trim() || "La Rioja Capital";
+          const url_web = document.getElementById("crudWeb").value.trim();
+          const url_rss = document.getElementById("crudRss").value.trim();
+
+          if (state.editIndex !== null && state.fuentesConfig.sitios[state.editIndex]) {
+            const actual = state.fuentesConfig.sitios[state.editIndex];
+            state.fuentesConfig.sitios[state.editIndex] = {
+              ...actual,
+              nombre,
+              categoria,
+              localidad,
+              url_web,
+              url_rss,
+              usar_rss: Boolean(url_rss),
+              tema_por_defecto: ""
+            };
+            state.editIndex = null;
+            mostrarToast("Fuente actualizada");
+          } else {
+            state.fuentesConfig.sitios.unshift({
+              id: `lr-custom-${Date.now().toString(36)}`,
+              nombre,
+              categoria,
+              subtipo: "Fuente personalizada",
+              localidad,
+              url_web,
+              url_rss,
+              usar_rss: Boolean(url_rss),
+              crawl_profundidad: 3,
+              tema_por_defecto: "",
+              activo: true
+            });
+            mostrarToast("Fuente agregada");
+          }
+          guardarLocal();
+          actualizarKPIs();
+          renderVista();
+        });
+
+        const btnCancel = document.getElementById("btnCancelarEdicion");
+        if (btnCancel) {
+          btnCancel.addEventListener("click", () => {
+            state.editIndex = null;
+            renderVista();
+          });
+        }
+
+        document.getElementById("btnExportarJson").addEventListener("click", () => {
+          const blob = new Blob([JSON.stringify(state.fuentesConfig, null, 2)], { type: "application/json" });
+          const a = document.createElement("a");
+          a.href = URL.createObjectURL(blob);
+          a.download = "monitor_v3_fuentes.json";
+          a.click();
+          mostrarToast("JSON exportado");
+        });
+
+        document.getElementById("btnResetLocal").addEventListener("click", () => {
+          localStorage.removeItem(STORAGE_KEY);
+          state.editIndex = null;
+          cargarDatos();
+          mostrarToast("Catálogo restaurado");
+        });
+        return;
+      }
+
+      if (state.tab === "vinculados") {
+        const lista = (state.noticiasData.contenidos_vinculados || []).filter(
+          (v) => state.taxonomia === "Todas" || v.taxonomia === state.taxonomia
+        );
+        if (!lista.length) {
+          cont.innerHTML = `<div class="empty">Aún no hay contenidos vinculados generados para esta selección.</div>`;
+          return;
+        }
+        cont.innerHTML = `<div class="grid">${lista.map((v, idx) => {
+          const copyKey = registrarTextoCopia(`vinc_${idx}`, `${v.titulo_original || ""}\n\n${v.cuerpo_original || ""}`);
+          return `
+            <article class="card">
+              <div class="card-body">
+                <div class="meta"><span class="badge">${escaparHtml(v.taxonomia)}</span><span>${escaparHtml(v.total_notas)} notas cruzadas</span></div>
+                <h3>${escaparHtml(v.titulo_original)}</h3>
+                <p>${escaparHtml(v.copete)}</p>
+                <p style="white-space:pre-line;font-size:0.82rem;">${escaparHtml(v.cuerpo_original)}</p>
+              </div>
+              <div class="card-actions">
+                <button class="btn btn-sm btn-primary" type="button" data-copy-key="${escaparHtml(copyKey)}">Copiar síntesis</button>
+              </div>
+            </article>
+          `;
+        }).join("")}</div>`;
+        return;
+      }
+
+      if (state.tab === "taxonomias") {
+        const notas = state.noticiasData.notas || [];
+        const taxes = state.fuentesConfig.taxonomias || [];
+        const tagCounts = {};
+        notas.forEach((n) => (n.etiquetas || []).forEach((t) => { tagCounts[t] = (tagCounts[t] || 0) + 1; }));
+        const topTags = Object.entries(tagCounts).sort((a, b) => b[1] - a[1]).slice(0, 30);
+
+        cont.innerHTML = `
+          <div class="grid" style="margin-bottom:16px;">
+            ${taxes.map((t) => {
+              const count = notas.filter((n) => n.taxonomia === t).length;
+              return `
+                <div class="card" style="cursor:pointer;" data-jump-tax="${escaparHtml(t)}">
+                  <div class="card-body">
+                    <h3>${escaparHtml(t)}</h3>
+                    <p>${count} notas clasificadas</p>
+                  </div>
+                </div>
+              `;
+            }).join("")}
+          </div>
+          <div class="card">
+            <div class="card-body">
+              <h3>Etiquetas destacadas del día</h3>
+              <div class="tags">
+                ${topTags.length ? topTags.map(([tag, c]) =>
+                  `<button class="pill" type="button" data-jump-tag="${escaparHtml(tag)}">#${escaparHtml(tag)} (${c})</button>`
+                ).join("") : "<span style='color:var(--muted);font-size:0.84rem;'>Sin etiquetas recolectadas aún.</span>"}
+              </div>
+            </div>
+          </div>
+        `;
+
+        cont.querySelectorAll("[data-jump-tax]").forEach((el) => {
+          el.addEventListener("click", () => {
+            state.taxonomia = el.dataset.jumpTax;
+            state.tab = "notas";
+            actualizarTabs();
+            renderFiltrosTaxonomia();
+            renderVista();
+          });
+        });
+
+        cont.querySelectorAll("[data-jump-tag]").forEach((el) => {
+          el.addEventListener("click", () => {
+            const tag = el.dataset.jumpTag;
+            state.busqueda = tag;
+            document.getElementById("inputBusqueda").value = tag;
+            state.tab = "notas";
+            actualizarTabs();
+            renderVista();
+          });
+        });
+      }
+    }
+
+    function actualizarTabs() {
+      document.querySelectorAll(".tab").forEach((t) => {
+        t.classList.toggle("active", t.dataset.tab === state.tab);
+      });
+    }
+
+    document.addEventListener("click", (e) => {
+      const openBtn = e.target.closest("[data-open-fuente]");
+      if (openBtn) {
+        abrirModalFuente(openBtn.dataset.openFuente);
+        return;
+      }
+      const copyBtn = e.target.closest("[data-copy-key]");
+      if (copyBtn) {
+        const texto = copyRegistry.get(copyBtn.dataset.copyKey) || "";
+        copiarTexto(texto, "Contenido");
+      }
+    });
+
+    document.querySelectorAll(".tab").forEach((t) => {
+      t.addEventListener("click", () => {
+        state.tab = t.dataset.tab;
+        actualizarTabs();
+        renderVista();
+      });
+    });
+
+    document.getElementById("inputBusqueda").addEventListener("input", (e) => {
+      state.busqueda = e.target.value;
+      renderVista();
+    });
+
+    document.getElementById("btnRecargar").addEventListener("click", cargarDatos);
+    document.getElementById("btnCerrarModal").addEventListener("click", cerrarModalFuente);
+    document.getElementById("modalFuente").addEventListener("click", (e) => {
+      if (e.target.id === "modalFuente") cerrarModalFuente();
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") cerrarModalFuente();
+    });
+
+    cargarDatos();
+  </script>
+</body>
+</html>
+
